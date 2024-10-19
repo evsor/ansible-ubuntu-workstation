@@ -1,0 +1,6 @@
+---
+- name: Remove unnecessary snaps
+  community.general.snap:
+    name:
+      - firefox
+    state: absent
