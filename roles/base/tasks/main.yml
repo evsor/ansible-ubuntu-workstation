@@ -1,0 +1,10 @@
+---
+- name: Install base packages
+  apt:
+    name: #Keep in alphabetical order
+      - curl
+      - git
+      - htop
+      - python3-pip
+    state: present
+    update_cache: yes
