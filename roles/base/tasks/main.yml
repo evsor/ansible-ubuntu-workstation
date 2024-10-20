@@ -1,4 +1,9 @@
 ---
+- name: Add repositories
+  ansible.builtin.apt_repository:
+    repo: ppa:phoerious/keepassxc # keepassxc repository
+    state: present
+
 - name: Install base packages
   apt:
     name: #Keep in alphabetical order
@@ -6,7 +11,9 @@
       - dropbox
       - git
       - htop
+      - keepassxc
       - python3-pip
+      - terminator
     state: present
     update_cache: yes
 
