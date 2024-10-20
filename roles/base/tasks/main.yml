@@ -3,6 +3,7 @@
   apt:
     name: #Keep in alphabetical order
       - curl
+      - dropbox
       - git
       - htop
       - python3-pip
