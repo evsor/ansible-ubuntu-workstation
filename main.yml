@@ -4,7 +4,19 @@
   become: true
   become_user: root
   become_method: sudo
-  gather_facts: false
+  gather_facts: true
+
+  pre_tasks:
+  - name: Set local user fact
+    ansible.builtin.set_fact:
+      local_user: "user"
+      home_dir: "/home/user"
+
+  - name: Print facts
+    ansible.builtin.debug:
+      msg:
+        - Local user is {{ local_user }}
+        - User directory is "{{ home_dir }}"
 
   roles:
     - base

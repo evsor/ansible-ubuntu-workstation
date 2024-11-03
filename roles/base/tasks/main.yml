@@ -23,3 +23,9 @@
     name: #Keep in alphabetical order
       - chromium
     state: present
+
+- name: Generate SSH key
+  openssh_keypair:
+    path: "{{ home_dir }}/.ssh/id_rsa"
+    size: 2048
+    owner: "{{ local_user }}"
