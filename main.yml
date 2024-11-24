@@ -20,5 +20,6 @@
 
   roles:
     - base
+    - dotfiles
     - software
     - cleanup

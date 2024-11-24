@@ -1,0 +1,12 @@
+---
+- name: Clone dotfiles repo
+  ansible.builtin.git:
+    repo: 'git@github.com:evsor/.dotfiles.git'
+    dest: "{{ home_dir }}/.dotfiles"
+    key_file: "{{ home_dir }}/.ssh/id_rsa"
+
+- name: Change owner
+  ansible.builtin.file:
+    path: "{{ home_dir }}/.dotfiles"
+    owner: "{{ local_user }}"
+    group: "{{ local_user }}"

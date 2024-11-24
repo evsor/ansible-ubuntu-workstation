@@ -1,5 +1,5 @@
 ---
-- name: Add repositories
+- name: Add apt repositories
   ansible.builtin.apt_repository:
     repo: ppa:phoerious/keepassxc # keepassxc repository
     state: present
@@ -14,6 +14,7 @@
       - htop
       - keepassxc
       - python3-pip
+      - stow
       - terminator
     state: present
     update_cache: yes
@@ -29,3 +30,10 @@
     path: "{{ home_dir }}/.ssh/id_rsa"
     size: 2048
     owner: "{{ local_user }}"
+
+- name: Add GitHub to known hosts
+  ansible.builtin.known_hosts:
+    path: /etc/ssh/ssh_known_hosts
+    name: github.com
+    key: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
+    state: present
