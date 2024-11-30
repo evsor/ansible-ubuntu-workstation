@@ -19,7 +19,7 @@
         - User directory is "{{ home_dir }}"
 
   roles:
-    - base
+    #- base
     - dotfiles
-    - software
-    - cleanup
+    #- software
+    #- cleanup
