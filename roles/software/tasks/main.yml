@@ -35,3 +35,18 @@
           - kubectl
         state: latest
         update_cache: true
+
+- name: Install software from GitHub releases
+  ansible.builtin.get_url:
+    url: "{{ item.url }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ local_user }}"
+    group: "{{ local_user }}"
+  with_items:
+     - { url: "https://github.com/danielfoehrKn/kubeswitch/releases/download/{{ kubeswitch_version }}/switcher_linux_amd64", dest: "/usr/local/bin/switcher" }
+
+- name: Install software from .deb packages
+  ansible.builtin.apt:
+    deb: "{{ item }}"
+  with_items:
+    - https://github.com/derailed/k9s/releases/download/v{{ k9s_version }}/k9s_linux_amd64.deb
