@@ -10,9 +10,28 @@
         repo: deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/microsoft.asc] https://packages.microsoft.com/repos/code stable main
         state: present
 
-- name: Install vscode
-  apt:
-    name:
-      - code
-    state: latest
-    update_cache: true
+    - name: Install vscode
+      apt:
+        name:
+          - code
+        state: latest
+        update_cache: true
+
+- name: Install kubectl
+  block:
+    - name: Get apt key
+      ansible.builtin.get_url:
+        url: "https://pkgs.k8s.io/core:/stable:/v{{ kubectl_version }}/deb/Release.key"
+        dest: /etc/apt/keyrings/kubernetes.asc
+
+    - name: Install repo
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/kubernetes.asc] https://pkgs.k8s.io/core:/stable:/v{{ kubectl_version }}/deb/ /"
+        state: present
+
+    - name: Install kubectl
+      apt:
+        name:
+          - kubectl
+        state: latest
+        update_cache: true

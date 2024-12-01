@@ -19,7 +19,8 @@
         - User directory is "{{ home_dir }}"
 
   roles:
-    #- base
+    - base
     - dotfiles
-    #- software
-    #- cleanup
+    - role: software
+      kubectl_version: 1.31
+    - cleanup
