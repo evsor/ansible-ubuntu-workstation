@@ -12,6 +12,17 @@
     group: "{{ local_user }}"
     recurse: true
 
+- name: Get existing .bashrc
+  ansible.builtin.stat:
+    path: "{{ home_dir }}/.bashrc"
+  register: sym
+
+- name: Remove .bashrc if it's not a symlink
+  file:
+    path: "{{ home_dir }}/.bashrc"
+    state: absent
+  when: sym.stat.islnk is defined and sym.stat.islnk == False
+
 - name: Run stow
   shell: "stow . --dir={{ home_dir }}/.dotfiles --target {{ home_dir }} --verbose=2"
   register: link_created
