@@ -1,37 +1,25 @@
-- name: Install VScode repo without apt_key
+- name: Install from external repositories
   block:
     - name: Get apt key
       ansible.builtin.get_url:
-        url: https://packages.microsoft.com/keys/microsoft.asc
-        dest: /etc/apt/keyrings/microsoft.asc
+        url: "{{ item.url }}"
+        dest: "{{ item.dest }}"
+      with_items:
+      - { url: "https://packages.microsoft.com/keys/microsoft.asc", dest: "/etc/apt/keyrings/microsoft.asc" }
+      - { url: "https://pkgs.k8s.io/core:/stable:/v{{ kubectl_version }}/deb/Release.key", dest: "/etc/apt/keyrings/kubernetes.asc" }
 
     - name: Install repo
       ansible.builtin.apt_repository:
-        repo: deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/microsoft.asc] https://packages.microsoft.com/repos/code stable main
+        repo: "{{ item }}"
         state: present
+      with_items:
+        - deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/microsoft.asc] https://packages.microsoft.com/repos/code stable main
+        - deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/kubernetes.asc] https://pkgs.k8s.io/core:/stable:/v{{ kubectl_version }}/deb/ /
 
-    - name: Install vscode
+    - name: Install package
       apt:
         name:
           - code
-        state: latest
-        update_cache: true
-
-- name: Install kubectl
-  block:
-    - name: Get apt key
-      ansible.builtin.get_url:
-        url: "https://pkgs.k8s.io/core:/stable:/v{{ kubectl_version }}/deb/Release.key"
-        dest: /etc/apt/keyrings/kubernetes.asc
-
-    - name: Install repo
-      ansible.builtin.apt_repository:
-        repo: "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/kubernetes.asc] https://pkgs.k8s.io/core:/stable:/v{{ kubectl_version }}/deb/ /"
-        state: present
-
-    - name: Install kubectl
-      apt:
-        name:
           - kubectl
         state: latest
         update_cache: true
