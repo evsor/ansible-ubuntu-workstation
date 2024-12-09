@@ -16,6 +16,7 @@
       - htop
       - keepassxc
       - python3-pip
+      - software-properties-common
       - stow
       - terminator
     state: present
