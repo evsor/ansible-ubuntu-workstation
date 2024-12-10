@@ -46,6 +46,7 @@
     dest: "{{ item.dest }}"
     owner: "{{ local_user }}"
     group: "{{ local_user }}"
+    mode: '0755'
   with_items:
      - { url: "https://github.com/danielfoehrKn/kubeswitch/releases/download/{{ kubeswitch_version }}/switcher_linux_amd64", dest: "/usr/local/bin/switcher" }
 
