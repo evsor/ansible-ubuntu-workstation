@@ -12,6 +12,7 @@
       - curl
       - dropbox
       - git
+      - gnome-shell-extension-manager
       - gnupg
       - htop
       - keepassxc
