@@ -7,13 +7,14 @@
 - name: Install base packages
   apt:
     name: #Keep in alphabetical order
+      - arc-theme
       - apt-transport-https
       - ca-certificates
       - curl
       - dropbox
       - git
-      - gnome-shell-extension-manager
       - gnome-tweaks
+      - gnome-shell-extension-manager
       - gnupg
       - htop
       - keepassxc
