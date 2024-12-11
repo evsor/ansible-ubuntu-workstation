@@ -13,6 +13,7 @@
       - dropbox
       - git
       - gnome-shell-extension-manager
+      - gnome-tweaks
       - gnupg
       - htop
       - keepassxc
@@ -20,6 +21,7 @@
       - software-properties-common
       - stow
       - terminator
+      - x11-utils
     state: present
     update_cache: yes
 
