@@ -34,6 +34,7 @@
           - docker-buildx-plugin
           - docker-compose-plugin
           - google-cloud-cli
+          - google-cloud-sdk-gke-gcloud-auth-plugin
           - kubectl
           - openvpn3
           - terraform
