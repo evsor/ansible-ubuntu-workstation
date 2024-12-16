@@ -59,3 +59,13 @@
     deb: "{{ item }}"
   with_items:
     - https://github.com/derailed/k9s/releases/download/v{{ k9s_version }}/k9s_linux_amd64.deb
+
+- name: Create additional directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: "{{ local_user }}"
+    group: "{{ local_user }}"
+    state: directory
+    mode: '0755'
+  with_items:
+    - "{{ home_dir }}/.terraform.d/plugin-cache"
