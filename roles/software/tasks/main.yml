@@ -41,6 +41,7 @@
           - kubectl
           - openvpn3
           - terraform
+          - vault
         state: latest
         update_cache: true
 
