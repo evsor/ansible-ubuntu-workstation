@@ -71,3 +71,6 @@
     mode: '0755'
   with_items:
     - "{{ home_dir }}/.terraform.d/plugin-cache"
+
+- name: Include Helm specific tasks
+  include_tasks: helm.yml

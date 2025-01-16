@@ -1,0 +1,14 @@
+- name: Install Helm repositories
+  kubernetes.core.helm_repository:
+    repo_name: "{{ item.name }}"
+    repo_url: "{{ item.url }}"
+    state: present
+  with_items:
+     - { name: hashicorp, url: "https://helm.releases.hashicorp.com"}
+
+- name: Install Helm plugins
+  kubernetes.core.helm_plugin:
+    plugin_path: "{{ item}}"
+    state: present
+  with_items:
+     - https://github.com/databus23/helm-diff
