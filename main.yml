@@ -1,9 +1,6 @@
 ---
 - name: Bootstrap Workstation
   hosts: localhost
-  become: true
-  become_user: root
-  become_method: sudo
   gather_facts: true
 
   pre_tasks:

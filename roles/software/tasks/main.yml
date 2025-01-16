@@ -1,4 +1,7 @@
 - name: Install from external repositories
+  become: true
+  become_user: root
+  become_method: sudo
   block:
     - name: Get apt key
       ansible.builtin.get_url:
