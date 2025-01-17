@@ -49,6 +49,9 @@
         update_cache: true
 
 - name: Install software from GitHub releases
+  become: true
+  become_user: root
+  become_method: sudo
   ansible.builtin.get_url:
     url: "{{ item.url }}"
     dest: "{{ item.dest }}"
@@ -58,6 +61,7 @@
   with_items:
      - { url: "https://github.com/danielfoehrKn/kubeswitch/releases/download/{{ kubeswitch_version }}/switcher_linux_amd64", dest: "/usr/local/bin/switcher" }
      - { url: "https://github.com/getsops/sops/releases/download/v{{sops_version }}/sops-v{{sops_version }}.linux.amd64", dest: "/usr/local/bin/sops" }
+     - { url: "https://github.com/mikefarah/yq/releases/download/v{{yq_version}}/yq_linux_amd64", dest: "/usr/local/bin/yq" }
 
 - name: Install software from .deb packages
   ansible.builtin.apt:
