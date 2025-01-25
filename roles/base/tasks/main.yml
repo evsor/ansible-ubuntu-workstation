@@ -15,6 +15,7 @@
       - ca-certificates
       - curl
       - dropbox
+      - fzf
       - git
       - gnome-tweaks
       - gnome-shell-extension-manager
