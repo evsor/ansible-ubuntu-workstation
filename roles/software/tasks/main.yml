@@ -29,7 +29,7 @@
         - deb [signed-by={{ keyrings_dir }}/hashicorp.asc] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main
         - deb [arch=amd64 signed-by={{ keyrings_dir }}/helm.asc] https://baltocdn.com/helm/stable/debian/ all main
 
-    - name: Install package
+    - name: Install packages
       apt:
         name:
           - code
@@ -95,3 +95,6 @@
 
 - name: Include Helm specific tasks
   include_tasks: helm.yml
+
+- name: Include docker specific tasks
+  include_tasks: docker.yml

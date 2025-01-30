@@ -1,0 +1,8 @@
+- name: Add current user to "docker" group
+  become: true
+  become_user: root
+  become_method: sudo
+  ansible.builtin.user:
+    name: "{{ local_user }}"
+    groups: docker
+    append: yes
