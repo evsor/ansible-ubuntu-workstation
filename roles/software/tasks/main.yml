@@ -62,7 +62,7 @@
      - { url: "https://github.com/danielfoehrKn/kubeswitch/releases/download/{{ kubeswitch_version }}/switcher_linux_amd64", dest: "/usr/local/bin/switcher" }
      - { url: "https://github.com/getsops/sops/releases/download/v{{ sops_version }}/sops-v{{ sops_version }}.linux.amd64", dest: "/usr/local/bin/sops" }
      - { url: "https://github.com/mikefarah/yq/releases/download/v{{ yq_version }}/yq_linux_amd64", dest: "/usr/local/bin/yq" }
-     - { url: "https://github.com/jsonnet-bundler/jsonnet-bundler/releases/download/v{{ jb_version }}/jb-linux-amd64", dest: "/usr/local/bin/jsonnet-bundler" }
+     - { url: "https://github.com/jsonnet-bundler/jsonnet-bundler/releases/download/v{{ jb_version }}/jb-linux-amd64", dest: "/usr/local/bin/jb" }
 
 - name: Install software from GitHub releases but it's tarballs
   become: true
