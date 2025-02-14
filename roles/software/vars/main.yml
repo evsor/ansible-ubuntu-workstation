@@ -6,3 +6,5 @@ k9s_version: 0.32.7
 sops_version: 3.9.2
 yq_version: 4.45.1
 fzf_version: 0.58.0
+qbec_version: 0.16.3
+jb_version: 0.6.0

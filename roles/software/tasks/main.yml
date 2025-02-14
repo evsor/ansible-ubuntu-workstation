@@ -60,8 +60,9 @@
     mode: '755'
   with_items:
      - { url: "https://github.com/danielfoehrKn/kubeswitch/releases/download/{{ kubeswitch_version }}/switcher_linux_amd64", dest: "/usr/local/bin/switcher" }
-     - { url: "https://github.com/getsops/sops/releases/download/v{{sops_version }}/sops-v{{sops_version }}.linux.amd64", dest: "/usr/local/bin/sops" }
-     - { url: "https://github.com/mikefarah/yq/releases/download/v{{yq_version}}/yq_linux_amd64", dest: "/usr/local/bin/yq" }
+     - { url: "https://github.com/getsops/sops/releases/download/v{{ sops_version }}/sops-v{{ sops_version }}.linux.amd64", dest: "/usr/local/bin/sops" }
+     - { url: "https://github.com/mikefarah/yq/releases/download/v{{ yq_version }}/yq_linux_amd64", dest: "/usr/local/bin/yq" }
+     - { url: "https://github.com/jsonnet-bundler/jsonnet-bundler/releases/download/v{{ jb_version }}/jb-linux-amd64", dest: "/usr/local/bin/jsonnet-bundler" }
 
 - name: Install software from GitHub releases but it's tarballs
   become: true
@@ -76,6 +77,7 @@
     remote_src: yes
   with_items:
      - { url: "https://github.com/junegunn/fzf/releases/download/v{{ fzf_version }}/fzf-{{ fzf_version }}-linux_amd64.tar.gz", dest: "/usr/local/bin/" }
+     - { url: "https://github.com/splunk/qbec/releases/download/v{{ qbec_version }}/qbec-linux-amd64.tar.gz", dest: "/usr/local/bin/" }
 
 - name: Install software from .deb packages
   ansible.builtin.apt:
