@@ -18,5 +18,5 @@
   roles:
     - base
     - dotfiles
-    - software
+    - tools
     - cleanup

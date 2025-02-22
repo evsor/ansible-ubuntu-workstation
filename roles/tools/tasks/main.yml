@@ -48,7 +48,7 @@
         state: latest
         update_cache: true
 
-- name: Install software from GitHub releases
+- name: Install tools from GitHub releases
   become: true
   become_user: root
   become_method: sudo
@@ -64,7 +64,7 @@
      - { url: "https://github.com/mikefarah/yq/releases/download/v{{ yq_version }}/yq_linux_amd64", dest: "/usr/local/bin/yq" }
      - { url: "https://github.com/jsonnet-bundler/jsonnet-bundler/releases/download/v{{ jb_version }}/jb-linux-amd64", dest: "/usr/local/bin/jb" }
 
-- name: Install software from GitHub releases but it's tarballs
+- name: Install tools from GitHub releases but it's tarballs
   become: true
   become_user: root
   become_method: sudo
@@ -79,7 +79,10 @@
      - { url: "https://github.com/junegunn/fzf/releases/download/v{{ fzf_version }}/fzf-{{ fzf_version }}-linux_amd64.tar.gz", dest: "/usr/local/bin/" }
      - { url: "https://github.com/splunk/qbec/releases/download/v{{ qbec_version }}/qbec-linux-amd64.tar.gz", dest: "/usr/local/bin/" }
 
-- name: Install software from .deb packages
+- name: Install tools from .deb packages
+  become: true
+  become_user: root
+  become_method: sudo
   ansible.builtin.apt:
     deb: "{{ item }}"
   with_items:
