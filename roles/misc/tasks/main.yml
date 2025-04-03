@@ -1,0 +1,21 @@
+- name: Install .deb packages
+  become: true
+  become_user: root
+  become_method: sudo
+  ansible.builtin.apt:
+    deb: "{{ item }}"
+  with_items:
+    - https://repo.protonvpn.com/debian/dists/stable/main/binary-all/protonvpn-stable-release_{{ protonvpn_version }}_all.deb
+
+- name: Install additional packages
+  become: true
+  become_user: root
+  become_method: sudo
+  apt:
+    name: #Keep in alphabetical order
+      - gir1.2-ayatanaappindicator3-0.1
+      - gnome-shell-extension-appindicator
+      - libayatana-appindicator3-1
+      - proton-vpn-gnome-desktop
+    state: present
+    update_cache: yes
