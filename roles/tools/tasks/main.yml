@@ -15,6 +15,7 @@
       - { url: "https://packages.openvpn.net/packages-repo.gpg", dest: "{{ keyrings_dir }}/openvpn.asc" }
       - { url: "https://apt.releases.hashicorp.com/gpg", dest: "{{ keyrings_dir }}/hashicorp.asc" }
       - { url: "https://baltocdn.com/helm/signing.asc", dest: "{{ keyrings_dir }}/helm.asc" }
+      - - { url: "https://www.mongodb.org/static/pgp/server-8.0.asc", dest: "{{ keyrings_dir }}/mongodb.asc" }
 
     - name: Install repo
       ansible.builtin.apt_repository:
@@ -28,6 +29,7 @@
         - deb [signed-by={{ keyrings_dir }}/openvpn.asc] https://packages.openvpn.net/openvpn3/debian {{ ansible_distribution_release }} main
         - deb [signed-by={{ keyrings_dir }}/hashicorp.asc] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main
         - deb [arch=amd64 signed-by={{ keyrings_dir }}/helm.asc] https://baltocdn.com/helm/stable/debian/ all main
+        - deb [arch=amd64 signed-by={{ keyrings_dir }}/mongodb.asc] https://repo.mongodb.org/apt/ubuntu {{ ansible_distribution_release }}/mongodb-org/8.0 multiverse
 
     - name: Install packages
       apt:
@@ -42,6 +44,7 @@
           - google-cloud-sdk-gke-gcloud-auth-plugin
           - helm
           - kubectl
+          - mongodb-mongosh
           - openvpn3
           - terraform
           - vault
