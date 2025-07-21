@@ -29,7 +29,7 @@
         - deb [signed-by={{ keyrings_dir }}/openvpn.asc] https://packages.openvpn.net/openvpn3/debian {{ ansible_distribution_release }} main
         - deb [signed-by={{ keyrings_dir }}/hashicorp.asc] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main
         - deb [arch=amd64 signed-by={{ keyrings_dir }}/helm.asc] https://baltocdn.com/helm/stable/debian/ all main
-        - deb [arch=amd64 signed-by={{ keyrings_dir }}/mongodb.asc] https://repo.mongodb.org/apt/ubuntu {{ ansible_distribution_release }}/mongodb-org/8.0 multiverse
+        - deb [arch=amd64 signed-by={{ keyrings_dir }}/mongodb.asc] https://repo.mongodb.org/apt/ubuntu {{ ansible_distribution_release }}/mongodb-org/{{ mongodb_version }} multiverse
 
     - name: Install packages
       apt:
@@ -67,6 +67,7 @@
      - { url: "https://github.com/mikefarah/yq/releases/download/v{{ yq_version }}/yq_linux_amd64", dest: "/usr/local/bin/yq" }
      - { url: "https://github.com/jsonnet-bundler/jsonnet-bundler/releases/download/v{{ jb_version }}/jb-linux-amd64", dest: "/usr/local/bin/jb" }
      - { url: "https://github.com/argoproj/argo-cd/releases/download/v{{ argocd_version }}/argocd-linux-amd64", dest: "/usr/local/bin/argocd" }
+     - { url: "https://github.com/kubernetes/minikube/releases/latest/download/minikube-linux-amd64", dest: "/usr/local/bin/minikube" }
 
 - name: Install tools from GitHub releases but it's tarballs
   become: true
