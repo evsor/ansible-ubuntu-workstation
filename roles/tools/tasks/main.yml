@@ -14,8 +14,8 @@
       - { url: "https://packages.cloud.google.com/apt/doc/apt-key.gpg", dest: "{{ keyrings_dir }}/cloud.google.asc" }
       - { url: "https://packages.openvpn.net/packages-repo.gpg", dest: "{{ keyrings_dir }}/openvpn.asc" }
       - { url: "https://apt.releases.hashicorp.com/gpg", dest: "{{ keyrings_dir }}/hashicorp.asc" }
-      - { url: "https://baltocdn.com/helm/signing.asc", dest: "{{ keyrings_dir }}/helm.asc" }
-      - - { url: "https://www.mongodb.org/static/pgp/server-8.0.asc", dest: "{{ keyrings_dir }}/mongodb.asc" }
+      - { url: "https://packages.buildkite.com/helm-linux/helm-debian/gpgkey", dest: "{{ keyrings_dir }}/helm.asc" }
+      - { url: "https://www.mongodb.org/static/pgp/server-8.0.asc", dest: "{{ keyrings_dir }}/mongodb.asc" }
 
     - name: Install repo
       ansible.builtin.apt_repository:
@@ -28,7 +28,7 @@
         - deb [signed-by={{ keyrings_dir }}/cloud.google.asc] https://packages.cloud.google.com/apt cloud-sdk main
         - deb [signed-by={{ keyrings_dir }}/openvpn.asc] https://packages.openvpn.net/openvpn3/debian {{ ansible_distribution_release }} main
         - deb [signed-by={{ keyrings_dir }}/hashicorp.asc] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main
-        - deb [arch=amd64 signed-by={{ keyrings_dir }}/helm.asc] https://baltocdn.com/helm/stable/debian/ all main
+        - deb [arch=amd64 signed-by={{ keyrings_dir }}/helm.asc] https://packages.buildkite.com/helm-linux/helm-debian/any/ any main
         - deb [arch=amd64 signed-by={{ keyrings_dir }}/mongodb.asc] https://repo.mongodb.org/apt/ubuntu {{ ansible_distribution_release }}/mongodb-org/{{ mongodb_version }} multiverse
 
     - name: Install packages
