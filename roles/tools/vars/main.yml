@@ -12,3 +12,4 @@ argocd_version: 2.14.5
 mongodb_version: 8.0
 kubetlkt_version: 0.5
 cmctl_version: 2.3.0
+k3d_version: 5.8.3

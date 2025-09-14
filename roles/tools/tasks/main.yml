@@ -68,6 +68,7 @@
      - { url: "https://github.com/jsonnet-bundler/jsonnet-bundler/releases/download/v{{ jb_version }}/jb-linux-amd64", dest: "/usr/local/bin/jb" }
      - { url: "https://github.com/argoproj/argo-cd/releases/download/v{{ argocd_version }}/argocd-linux-amd64", dest: "/usr/local/bin/argocd" }
      - { url: "https://github.com/kubernetes/minikube/releases/latest/download/minikube-linux-amd64", dest: "/usr/local/bin/minikube" }
+     - { url: "https://github.com/k3d-io/k3d/releases/download/v{{ k3d_version }}/k3d-linux-amd64", dest: "/usr/local/bin/k3d" }
 
 - name: Install tools from GitHub releases but it's tarballs
   become: true
