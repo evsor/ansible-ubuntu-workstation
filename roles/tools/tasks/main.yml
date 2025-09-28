@@ -86,6 +86,7 @@
      - { url: "https://github.com/splunk/qbec/releases/download/v{{ qbec_version }}/qbec-linux-amd64.tar.gz", dest: "/usr/local/bin/" }
      - { url: "https://github.com/evsor/kubetoolkit/releases/download/v{{ kubetlkt_version }}/kubetlkt-v{{ kubetlkt_version }}-linux-amd64.tar.gz", dest: "/usr/local/bin/" }
      - { url: "https://github.com/cert-manager/cmctl/releases/download/v{{ cmctl_version }}/cmctl_linux_amd64.tar.gz", dest: "/usr/local/bin/" }
+     - { url: "https://github.com/cilium/cilium-cli/releases/download/v{{ cilium_version }}/cilium-linux-amd64.tar.gz", dest: "/usr/local/bin/" }
 
 - name: Install tools from .deb packages
   become: true
