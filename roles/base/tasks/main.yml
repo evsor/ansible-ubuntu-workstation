@@ -37,6 +37,16 @@
       - chromium
     state: present
 
+- name: Install base snaps with classic confinement
+  become: true
+  become_user: root
+  become_method: sudo
+  community.general.snap:
+    name: #Keep in alphabetical order
+      - go
+    state: present
+    classic: true
+
 - name: Generate SSH key
   openssh_keypair:
     path: "{{ home_dir }}/.ssh/id_rsa"
