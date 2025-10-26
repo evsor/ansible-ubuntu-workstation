@@ -1,16 +1,16 @@
 ---
 keyrings_dir: "/etc/apt/keyrings"
-kubectl_version: 1.32
+kubectl_version: 1.34
 kubeswitch_version: 0.9.3
-k9s_version: 0.40.5
-sops_version: 3.9.4
-yq_version: 4.45.1
-fzf_version: 0.60.1
+k9s_version: 0.50.16
+sops_version: 3.11.0
+yq_version: 4.48.1
+fzf_version: 0.66.1
 qbec_version: 0.16.3
 jb_version: 0.6.0
-argocd_version: 2.14.5
+argocd_version: 3.1.9
 mongodb_version: 8.0
 kubetlkt_version: 0.5
 cmctl_version: 2.3.0
 k3d_version: 5.8.3
-cilium_version: 0.18.7
+cilium_version: 0.18.8
