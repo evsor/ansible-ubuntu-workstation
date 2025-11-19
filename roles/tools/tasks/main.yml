@@ -16,6 +16,7 @@
       - { url: "https://apt.releases.hashicorp.com/gpg", dest: "{{ keyrings_dir }}/hashicorp.asc" }
       - { url: "https://packages.buildkite.com/helm-linux/helm-debian/gpgkey", dest: "{{ keyrings_dir }}/helm.asc" }
       - { url: "https://www.mongodb.org/static/pgp/server-8.0.asc", dest: "{{ keyrings_dir }}/mongodb.asc" }
+      - { url: "https://us-central1-apt.pkg.dev/doc/repo-signing-key.gpg", dest: "{{ keyrings_dir }}/antigravity.asc" }
 
     - name: Install repo
       ansible.builtin.apt_repository:
@@ -30,10 +31,12 @@
         - deb [signed-by={{ keyrings_dir }}/hashicorp.asc] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main
         - deb [arch=amd64 signed-by={{ keyrings_dir }}/helm.asc] https://packages.buildkite.com/helm-linux/helm-debian/any/ any main
         - deb [arch=amd64 signed-by={{ keyrings_dir }}/mongodb.asc] https://repo.mongodb.org/apt/ubuntu {{ ansible_distribution_release }}/mongodb-org/{{ mongodb_version }} multiverse
+        - deb [signed-by={{ keyrings_dir }}/antigravity.asc] https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/ antigravity-debian main
 
     - name: Install packages
       apt:
         name:
+          - antigravity
           - code
           - containerd.io
           - docker-ce
