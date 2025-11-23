@@ -46,6 +46,7 @@
           - kubectl
           - mongodb-mongosh
           - openvpn3
+          - skopeo
           - terraform
           - vault
         state: latest
