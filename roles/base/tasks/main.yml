@@ -1,51 +1,36 @@
 ---
 - name: Add apt repositories
   ansible.builtin.apt_repository:
-    repo: ppa:phoerious/keepassxc # keepassxc repository
+    repo: "{{ item.repo }}"
     state: present
+  loop: "{{ base_apt_repos }}"
+  loop_control:
+    label: "{{ item.name }}"
 
 - name: Install base packages
   become: true
   become_user: root
   become_method: sudo
-  apt:
-    name: #Keep in alphabetical order
-      - arc-theme
-      - apt-transport-https
-      - ca-certificates
-      - curl
-      - dropbox
-      - git
-      - gnome-tweaks
-      - gnome-shell-extension-manager
-      - gnupg
-      - htop
-      - keepassxc
-      - python3-pip
-      - python3-kubernetes
-      - ripgrep
-      - software-properties-common
-      - stow
-      - terminator
-      - x11-utils
+  ansible.builtin.apt:
+    name: "{{ base_apt_packages | map(attribute='name') | list }}"
     state: present
-    update_cache: yes
+    update_cache: true
 
 - name: Install base snaps
   community.general.snap:
-    name: #Keep in alphabetical order
-      - chromium
+    name: "{{ base_snaps | rejectattr('classic') | map(attribute='name') | list }}"
     state: present
+  when: base_snaps | rejectattr('classic') | list | length > 0
 
 - name: Install base snaps with classic confinement
   become: true
   become_user: root
   become_method: sudo
   community.general.snap:
-    name: #Keep in alphabetical order
-      - go
+    name: "{{ base_snaps | selectattr('classic') | map(attribute='name') | list }}"
     state: present
     classic: true
+  when: base_snaps | selectattr('classic') | list | length > 0
 
 - name: Generate SSH key
   openssh_keypair:
