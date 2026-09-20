@@ -3,5 +3,5 @@
 cleanup_snaps_absent:
   - { name: firefox, profiles: [personal, work] }
 
-# Profile-filtered view of the catalog above.
+# Profile-filtered view of the catalog
 cleanup_snaps_absent_selected: "{{ cleanup_snaps_absent | selectattr('profiles', 'contains', profile) | list }}"

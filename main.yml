@@ -4,8 +4,7 @@
   gather_facts: true
 
   vars:
-    # Profiles a machine may be bootstrapped as. Every catalog entry declares
-    # which of these it belongs to.
+    # Software profiles available for the workstation
     workstation_profiles: [personal, work]
 
   pre_tasks:
@@ -19,7 +18,7 @@
       path: "{{ playbook_dir }}/profile.yml"
     register: profile_file
 
-  # Skipped when -e profile=... was passed; an extra var outranks this anyway.
+  # Skipped when -e profile=... is passed
   - name: Load per-machine profile
     ansible.builtin.include_vars:
       file: "{{ playbook_dir }}/profile.yml"
@@ -34,8 +33,7 @@
         - profile in workstation_profiles
       fail_msg: >-
         'profile' must be one of: {{ workstation_profiles | join(', ') }}.
-        Pass it with -e profile=work, or write it once to profile.yml
-        (see profile.yml.example).
+        Pass it with -e profile=work, or write to profile.yml (see profile.yml.example)
       quiet: true
 
   - name: Print facts
