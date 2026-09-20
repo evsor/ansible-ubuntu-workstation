@@ -1,31 +1,21 @@
 ---
-- name: Configure apt repositories
+- name: Add apt repositories
   become: true
   become_user: root
   become_method: sudo
-  block:
-    - name: Remove repository files left behind by the deprecated PPA handling
-      ansible.builtin.file:
-        path: "{{ item.path }}"
-        state: absent
-      loop: "{{ base_apt_legacy_sources }}"
-      loop_control:
-        label: "{{ item.name }}"
-
-    - name: Add apt repositories
-      ansible.builtin.deb822_repository:
-        name: "{{ item.name }}"
-        uris: "{{ item.uris }}"
-        suites: "{{ item.suites }}"
-        components: "{{ item.components | default(omit) }}"
-        architectures: "{{ item.architectures | default(omit) }}"
-        signed_by: "{{ item.signed_by }}"
-        state: present
-        # base runs first, so a fresh machine may not have the library yet
-        install_python_debian: true
-      loop: "{{ base_apt_repos }}"
-      loop_control:
-        label: "{{ item.name }}"
+  ansible.builtin.deb822_repository:
+    name: "{{ item.name }}"
+    uris: "{{ item.uris }}"
+    suites: "{{ item.suites }}"
+    components: "{{ item.components | default(omit) }}"
+    architectures: "{{ item.architectures | default(omit) }}"
+    signed_by: "{{ item.signed_by }}"
+    state: present
+    # base runs first, so a fresh machine may not have the library yet
+    install_python_debian: true
+  loop: "{{ base_apt_repos }}"
+  loop_control:
+    label: "{{ item.name }}"
 
 - name: Install base packages
   become: true

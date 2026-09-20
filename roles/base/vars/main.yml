@@ -21,13 +21,6 @@ base_apt_repos:
     signed_by: "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xD89C66D0E31FEA2874EBD20561922AB60068FCD6&options=mr"
     profiles: [personal, work]
 
-# Written by the old `ppa:` code path and superseded by the .sources file above.
-# Removed first, so apt does not read the same repository twice.
-base_apt_legacy_sources:
-  - name: keepassxc
-    path: "/etc/apt/sources.list.d/ppa_phoerious_keepassxc_{{ ansible_distribution_release }}.list"
-    profiles: [personal, work]
-
 base_apt_packages: # Keep in alphabetical order
   - { name: arc-theme, profiles: [personal, work] }
   - { name: apt-transport-https, profiles: [personal, work], removable: false }

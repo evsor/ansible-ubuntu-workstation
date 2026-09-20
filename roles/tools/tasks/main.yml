@@ -4,26 +4,6 @@
   become_user: root
   become_method: sudo
   block:
-    - name: Find repository files superseded by the deb822 sources
-      ansible.builtin.find:
-        paths: /etc/apt/sources.list.d
-        patterns: "{{ tools_apt_legacy_sources }}"
-      register: tools_legacy_sources
-
-    - name: Remove repository files superseded by the deb822 sources
-      ansible.builtin.file:
-        path: "{{ item.path }}"
-        state: absent
-      loop: "{{ tools_legacy_sources.files }}"
-      loop_control:
-        label: "{{ item.path | basename }}"
-
-    - name: Remove orphaned signing keys
-      ansible.builtin.file:
-        path: "{{ keyrings_dir }}/{{ item }}"
-        state: absent
-      loop: "{{ tools_apt_legacy_keyrings }}"
-
     - name: Install repo
       ansible.builtin.deb822_repository:
         name: "{{ item.name }}"

@@ -1,5 +1,4 @@
 ---
-keyrings_dir: "/etc/apt/keyrings"
 kubectl_version: 1.34
 kubeswitch_version: 0.9.3
 k9s_version: 0.50.16
@@ -22,13 +21,6 @@ kubeseal_version: 0.33.1
 # files:    every path a tarball extracts, verified against the actual release artifact. Needed to proper cleanup
 # package:  for removal by name
 
-# Repositories are written as deb822 .sources files, each with its own
-# Signed-By key. apt_key and the trusted.gpg keyring it writes to are
-# deprecated, and a key landing there signs for every repository on the system;
-# deb822_repository instead stores each signed_by key in its own keyring under
-# keyrings_dir and scopes it to that one repository.
-#
-# suites: a suite ending in "/" addresses an exact path and takes no components
 tools_apt_repos:
   - name: vscode
     uris: "https://packages.microsoft.com/repos/code"
@@ -64,6 +56,7 @@ tools_apt_repos:
     uris: "https://packages.openvpn.net/openvpn3/debian"
     suites: ["{{ ansible_distribution_release }}"]
     components: [main]
+    architectures: [amd64]
     signed_by: "https://packages.openvpn.net/packages-repo.gpg"
     profiles: [personal, work]
 
@@ -89,26 +82,6 @@ tools_apt_repos:
     architectures: [amd64]
     signed_by: "https://www.mongodb.org/static/pgp/server-{{ mongodb_version }}.asc"
     profiles: [personal, work]
-
-# Written by the previous apt_repository tasks and superseded by the .sources
-# files above. Removed so apt does not read the same repository twice; the
-# kubernetes glob also catches entries left by earlier kubectl_version values.
-tools_apt_legacy_sources:
-  - "packages_microsoft_com_repos_code.list"
-  - "pkgs_k8s_io_core_stable_*.list"
-  - "docker.list"
-  - "packages_cloud_google_com_apt.list"
-  - "packages_openvpn_net_openvpn3_debian.list"
-  - "apt_releases_hashicorp_com.list"
-  - "packages_buildkite_com_helm_linux_helm_debian_any.list"
-  - "repo_mongodb_org_apt_ubuntu.list"
-
-# Keys the old tasks downloaded under names that no longer match a repository.
-# deb822_repository names each keyring after its repo, so these two are orphaned
-# by the rename (microsoft -> vscode, cloud.google -> google-cloud).
-tools_apt_legacy_keyrings:
-  - "microsoft.asc"
-  - "cloud.google.asc"
 
 tools_apt_packages: # Keep in alphabetical order
   - { name: code, profiles: [personal, work] }
