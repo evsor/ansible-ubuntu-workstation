@@ -22,54 +22,93 @@ kubeseal_version: 0.33.1
 # files:    every path a tarball extracts, verified against the actual release artifact. Needed to proper cleanup
 # package:  for removal by name
 
+# Repositories are written as deb822 .sources files, each with its own
+# Signed-By key. apt_key and the trusted.gpg keyring it writes to are
+# deprecated, and a key landing there signs for every repository on the system;
+# deb822_repository instead stores each signed_by key in its own keyring under
+# keyrings_dir and scopes it to that one repository.
+#
+# suites: a suite ending in "/" addresses an exact path and takes no components
 tools_apt_repos:
   - name: vscode
-    key_url: "https://packages.microsoft.com/keys/microsoft.asc"
-    keyring: "{{ keyrings_dir }}/microsoft.asc"
-    repo: "deb [arch=amd64,arm64,armhf signed-by={{ keyrings_dir }}/microsoft.asc] https://packages.microsoft.com/repos/code stable main"
+    uris: "https://packages.microsoft.com/repos/code"
+    suites: [stable]
+    components: [main]
+    architectures: [amd64, arm64, armhf]
+    signed_by: "https://packages.microsoft.com/keys/microsoft.asc"
     profiles: [personal, work]
 
   - name: kubernetes
-    key_url: "https://pkgs.k8s.io/core:/stable:/v{{ kubectl_version }}/deb/Release.key"
-    keyring: "{{ keyrings_dir }}/kubernetes.asc"
-    repo: "deb [arch=amd64,arm64,armhf signed-by={{ keyrings_dir }}/kubernetes.asc] https://pkgs.k8s.io/core:/stable:/v{{ kubectl_version }}/deb/ /"
+    uris: "https://pkgs.k8s.io/core:/stable:/v{{ kubectl_version }}/deb/"
+    suites: ["/"]
+    architectures: [amd64, arm64, armhf]
+    signed_by: "https://pkgs.k8s.io/core:/stable:/v{{ kubectl_version }}/deb/Release.key"
     profiles: [personal, work]
 
   - name: docker
-    key_url: "https://download.docker.com/linux/ubuntu/gpg"
-    keyring: "{{ keyrings_dir }}/docker.asc"
-    repo: "deb [arch=amd64 signed-by={{ keyrings_dir }}/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    uris: "https://download.docker.com/linux/ubuntu"
+    suites: ["{{ ansible_distribution_release }}"]
+    components: [stable]
+    architectures: [amd64]
+    signed_by: "https://download.docker.com/linux/ubuntu/gpg"
     profiles: [personal, work]
 
   - name: google-cloud
-    key_url: "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
-    keyring: "{{ keyrings_dir }}/cloud.google.asc"
-    repo: "deb [signed-by={{ keyrings_dir }}/cloud.google.asc] https://packages.cloud.google.com/apt cloud-sdk main"
+    uris: "https://packages.cloud.google.com/apt"
+    suites: [cloud-sdk]
+    components: [main]
+    signed_by: "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
     profiles: [personal, work]
 
   - name: openvpn
-    key_url: "https://packages.openvpn.net/packages-repo.gpg"
-    keyring: "{{ keyrings_dir }}/openvpn.asc"
-    repo: "deb [signed-by={{ keyrings_dir }}/openvpn.asc] https://packages.openvpn.net/openvpn3/debian {{ ansible_distribution_release }} main"
+    uris: "https://packages.openvpn.net/openvpn3/debian"
+    suites: ["{{ ansible_distribution_release }}"]
+    components: [main]
+    signed_by: "https://packages.openvpn.net/packages-repo.gpg"
     profiles: [personal, work]
 
   - name: hashicorp
-    key_url: "https://apt.releases.hashicorp.com/gpg"
-    keyring: "{{ keyrings_dir }}/hashicorp.asc"
-    repo: "deb [signed-by={{ keyrings_dir }}/hashicorp.asc] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+    uris: "https://apt.releases.hashicorp.com"
+    suites: ["{{ ansible_distribution_release }}"]
+    components: [main]
+    signed_by: "https://apt.releases.hashicorp.com/gpg"
     profiles: [personal, work]
 
   - name: helm
-    key_url: "https://packages.buildkite.com/helm-linux/helm-debian/gpgkey"
-    keyring: "{{ keyrings_dir }}/helm.asc"
-    repo: "deb [arch=amd64 signed-by={{ keyrings_dir }}/helm.asc] https://packages.buildkite.com/helm-linux/helm-debian/any/ any main"
+    uris: "https://packages.buildkite.com/helm-linux/helm-debian/any/"
+    suites: [any]
+    components: [main]
+    architectures: [amd64]
+    signed_by: "https://packages.buildkite.com/helm-linux/helm-debian/gpgkey"
     profiles: [personal, work]
 
   - name: mongodb
-    key_url: "https://www.mongodb.org/static/pgp/server-8.0.asc"
-    keyring: "{{ keyrings_dir }}/mongodb.asc"
-    repo: "deb [arch=amd64 signed-by={{ keyrings_dir }}/mongodb.asc] https://repo.mongodb.org/apt/ubuntu {{ ansible_distribution_release }}/mongodb-org/{{ mongodb_version }} multiverse"
+    uris: "https://repo.mongodb.org/apt/ubuntu"
+    suites: ["{{ ansible_distribution_release }}/mongodb-org/{{ mongodb_version }}"]
+    components: [multiverse]
+    architectures: [amd64]
+    signed_by: "https://www.mongodb.org/static/pgp/server-{{ mongodb_version }}.asc"
     profiles: [personal, work]
+
+# Written by the previous apt_repository tasks and superseded by the .sources
+# files above. Removed so apt does not read the same repository twice; the
+# kubernetes glob also catches entries left by earlier kubectl_version values.
+tools_apt_legacy_sources:
+  - "packages_microsoft_com_repos_code.list"
+  - "pkgs_k8s_io_core_stable_*.list"
+  - "docker.list"
+  - "packages_cloud_google_com_apt.list"
+  - "packages_openvpn_net_openvpn3_debian.list"
+  - "apt_releases_hashicorp_com.list"
+  - "packages_buildkite_com_helm_linux_helm_debian_any.list"
+  - "repo_mongodb_org_apt_ubuntu.list"
+
+# Keys the old tasks downloaded under names that no longer match a repository.
+# deb822_repository names each keyring after its repo, so these two are orphaned
+# by the rename (microsoft -> vscode, cloud.google -> google-cloud).
+tools_apt_legacy_keyrings:
+  - "microsoft.asc"
+  - "cloud.google.asc"
 
 tools_apt_packages: # Keep in alphabetical order
   - { name: code, profiles: [personal, work] }
