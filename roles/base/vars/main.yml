@@ -5,9 +5,27 @@
 # removable: false marks packages that uninstall must never remove, because
 #            doing so would break the system or Ansible itself.
 
+# The PPA is spelled out rather than given as `ppa:phoerious/keepassxc`.
+# Ansible's PPA shorthand shells out to the deprecated apt-key, which drops the
+# signing key into the global /etc/apt/trusted.gpg, where it then vouches for
+# every repository on the system. Naming the archive explicitly lets
+# deb822_repository keep the key in its own keyring, scoped to this repo alone.
+#
+# signed_by: the PPA's Launchpad signing key, fetched by fingerprint
 base_apt_repos:
   - name: keepassxc
-    repo: ppa:phoerious/keepassxc
+    uris: "https://ppa.launchpadcontent.net/phoerious/keepassxc/ubuntu"
+    suites: ["{{ ansible_distribution_release }}"]
+    components: [main]
+    architectures: [amd64]
+    signed_by: "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xD89C66D0E31FEA2874EBD20561922AB60068FCD6&options=mr"
+    profiles: [personal, work]
+
+# Written by the old `ppa:` code path and superseded by the .sources file above.
+# Removed first, so apt does not read the same repository twice.
+base_apt_legacy_sources:
+  - name: keepassxc
+    path: "/etc/apt/sources.list.d/ppa_phoerious_keepassxc_{{ ansible_distribution_release }}.list"
     profiles: [personal, work]
 
 base_apt_packages: # Keep in alphabetical order
