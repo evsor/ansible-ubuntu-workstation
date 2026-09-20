@@ -4,7 +4,7 @@
     repo_name: "{{ item.name }}"
     repo_url: "{{ item.url }}"
     state: present
-  loop: "{{ tools_helm_repos }}"
+  loop: "{{ tools_helm_repos_selected }}"
   loop_control:
     label: "{{ item.name }}"
 
@@ -12,6 +12,6 @@
   kubernetes.core.helm_plugin:
     plugin_path: "{{ item.url }}"
     state: present
-  loop: "{{ tools_helm_plugins }}"
+  loop: "{{ tools_helm_plugins_selected }}"
   loop_control:
     label: "{{ item.name }}"

@@ -3,15 +3,43 @@
   hosts: localhost
   gather_facts: true
 
+  vars:
+    # Software profiles available for the workstation
+    workstation_profiles: [personal, work]
+
   pre_tasks:
   - name: Set local user fact
     ansible.builtin.set_fact:
       local_user: "user"
       home_dir: "/home/user"
 
+  - name: Look for a per-machine profile file
+    ansible.builtin.stat:
+      path: "{{ playbook_dir }}/profile.yml"
+    register: profile_file
+
+  # Skipped when -e profile=... is passed
+  - name: Load per-machine profile
+    ansible.builtin.include_vars:
+      file: "{{ playbook_dir }}/profile.yml"
+    when:
+      - profile is not defined
+      - profile_file.stat.exists
+
+  - name: Validate profile
+    ansible.builtin.assert:
+      that:
+        - profile is defined
+        - profile in workstation_profiles
+      fail_msg: >-
+        'profile' must be one of: {{ workstation_profiles | join(', ') }}.
+        Pass it with -e profile=work, or write to profile.yml (see profile.yml.example)
+      quiet: true
+
   - name: Print facts
     ansible.builtin.debug:
       msg:
+        - Profile is {{ profile }}
         - Local user is {{ local_user }}
         - User directory is "{{ home_dir }}"
 
