@@ -1,8 +1,9 @@
-- name: Add current user to "docker" group
+---
+- name: Add current user to supplementary groups
   become: true
   become_user: root
   become_method: sudo
   ansible.builtin.user:
     name: "{{ local_user }}"
-    groups: docker
-    append: yes
+    groups: "{{ tools_user_groups | map(attribute='name') | list }}"
+    append: true

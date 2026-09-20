@@ -1,0 +1,35 @@
+---
+# Catalog of everything the `base` role manages.
+#
+# profiles:  which workstation profiles receive this item (used from Phase 2 on)
+# removable: false marks packages that uninstall must never remove, because
+#            doing so would break the system or Ansible itself.
+
+base_apt_repos:
+  - name: keepassxc
+    repo: ppa:phoerious/keepassxc
+    profiles: [personal, work]
+
+base_apt_packages: # Keep in alphabetical order
+  - { name: arc-theme, profiles: [personal, work] }
+  - { name: apt-transport-https, profiles: [personal, work], removable: false }
+  - { name: ca-certificates, profiles: [personal, work], removable: false }
+  - { name: curl, profiles: [personal, work], removable: false }
+  - { name: dropbox, profiles: [personal, work] }
+  - { name: git, profiles: [personal, work], removable: false }
+  - { name: gnome-tweaks, profiles: [personal, work] }
+  - { name: gnome-shell-extension-manager, profiles: [personal, work] }
+  - { name: gnupg, profiles: [personal, work], removable: false }
+  - { name: htop, profiles: [personal, work] }
+  - { name: keepassxc, profiles: [personal, work] }
+  - { name: python3-pip, profiles: [personal, work], removable: false }
+  - { name: python3-kubernetes, profiles: [personal, work] }
+  - { name: ripgrep, profiles: [personal, work] }
+  - { name: software-properties-common, profiles: [personal, work], removable: false }
+  - { name: stow, profiles: [personal, work] }
+  - { name: terminator, profiles: [personal, work] }
+  - { name: x11-utils, profiles: [personal, work] }
+
+base_snaps: # Keep in alphabetical order
+  - { name: chromium, classic: false, profiles: [personal, work] }
+  - { name: go, classic: true, profiles: [personal, work] }

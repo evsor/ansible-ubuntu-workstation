@@ -1,0 +1,4 @@
+---
+# Snaps that ship with Ubuntu and are removed on every profile.
+cleanup_snaps_absent:
+  - { name: firefox, profiles: [personal, work] }

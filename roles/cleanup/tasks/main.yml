@@ -1,6 +1,6 @@
 ---
 - name: Remove unnecessary snaps
   community.general.snap:
-    name:
-      - firefox
+    name: "{{ cleanup_snaps_absent | map(attribute='name') | list }}"
     state: absent
+  when: cleanup_snaps_absent | length > 0

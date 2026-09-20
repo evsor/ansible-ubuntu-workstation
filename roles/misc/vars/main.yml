@@ -1,2 +1,19 @@
 ---
 protonvpn_version: 1.0.8
+
+# Catalog of everything the `misc` role manages.
+#
+# package: the Debian package name a remote .deb installs. Recorded separately
+#          from the URL because uninstall removes by name, not by URL.
+
+misc_debs:
+  - name: protonvpn-release
+    package: protonvpn-stable-release
+    url: "https://repo.protonvpn.com/debian/dists/stable/main/binary-all/protonvpn-stable-release_{{ protonvpn_version }}_all.deb"
+    profiles: [personal, work]
+
+misc_apt_packages: # Keep in alphabetical order
+  - { name: gir1.2-ayatanaappindicator3-0.1, profiles: [personal, work] }
+  - { name: gnome-shell-extension-appindicator, profiles: [personal, work] }
+  - { name: libayatana-appindicator3-1, profiles: [personal, work] }
+  - { name: proton-vpn-gnome-desktop, profiles: [personal, work] }
