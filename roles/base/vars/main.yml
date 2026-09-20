@@ -44,3 +44,9 @@ base_apt_packages: # Keep in alphabetical order
 base_snaps: # Keep in alphabetical order
   - { name: chromium, classic: false, profiles: [personal, work] }
   - { name: go, classic: true, profiles: [personal, work] }
+
+# Profile-filtered views of the catalogs above. Tasks consume these, never the
+# raw catalogs, so that adding a profile to an entry is the only edit needed.
+base_apt_repos_selected: "{{ base_apt_repos | selectattr('profiles', 'contains', profile) | list }}"
+base_apt_packages_selected: "{{ base_apt_packages | selectattr('profiles', 'contains', profile) | list }}"
+base_snaps_selected: "{{ base_snaps | selectattr('profiles', 'contains', profile) | list }}"

@@ -199,3 +199,15 @@ tools_helm_plugins:
 tools_user_groups:
   - name: docker
     profiles: [personal, work]
+
+# Profile-filtered views of the catalogs above. Tasks consume these, never the
+# raw catalogs, so that adding a profile to an entry is the only edit needed.
+tools_apt_repos_selected: "{{ tools_apt_repos | selectattr('profiles', 'contains', profile) | list }}"
+tools_apt_packages_selected: "{{ tools_apt_packages | selectattr('profiles', 'contains', profile) | list }}"
+tools_binaries_selected: "{{ tools_binaries | selectattr('profiles', 'contains', profile) | list }}"
+tools_tarballs_selected: "{{ tools_tarballs | selectattr('profiles', 'contains', profile) | list }}"
+tools_debs_selected: "{{ tools_debs | selectattr('profiles', 'contains', profile) | list }}"
+tools_directories_selected: "{{ tools_directories | selectattr('profiles', 'contains', profile) | list }}"
+tools_helm_repos_selected: "{{ tools_helm_repos | selectattr('profiles', 'contains', profile) | list }}"
+tools_helm_plugins_selected: "{{ tools_helm_plugins | selectattr('profiles', 'contains', profile) | list }}"
+tools_user_groups_selected: "{{ tools_user_groups | selectattr('profiles', 'contains', profile) | list }}"

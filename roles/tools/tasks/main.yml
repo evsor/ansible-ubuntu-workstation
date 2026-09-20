@@ -13,15 +13,16 @@
         architectures: "{{ item.architectures | default(omit) }}"
         signed_by: "{{ item.signed_by }}"
         state: present
-      loop: "{{ tools_apt_repos }}"
+      loop: "{{ tools_apt_repos_selected }}"
       loop_control:
         label: "{{ item.name }}"
 
     - name: Install packages
       ansible.builtin.apt:
-        name: "{{ tools_apt_packages | map(attribute='name') | list }}"
+        name: "{{ tools_apt_packages_selected | map(attribute='name') | list }}"
         state: latest
         update_cache: true
+      when: tools_apt_packages_selected | length > 0
 
 - name: Install tools from GitHub releases
   become: true
@@ -33,7 +34,7 @@
     owner: "{{ local_user }}"
     group: "{{ local_user }}"
     mode: '755'
-  loop: "{{ tools_binaries }}"
+  loop: "{{ tools_binaries_selected }}"
   loop_control:
     label: "{{ item.name }}"
 
@@ -48,7 +49,7 @@
     group: "{{ local_user }}"
     mode: '755'
     remote_src: true
-  loop: "{{ tools_tarballs }}"
+  loop: "{{ tools_tarballs_selected }}"
   loop_control:
     label: "{{ item.name }}"
 
@@ -58,7 +59,7 @@
   become_method: sudo
   ansible.builtin.apt:
     deb: "{{ item.url }}"
-  loop: "{{ tools_debs }}"
+  loop: "{{ tools_debs_selected }}"
   loop_control:
     label: "{{ item.name }}"
 
@@ -69,7 +70,7 @@
     group: "{{ local_user }}"
     state: directory
     mode: '0755'
-  loop: "{{ tools_directories }}"
+  loop: "{{ tools_directories_selected }}"
   loop_control:
     label: "{{ item.path }}"
 

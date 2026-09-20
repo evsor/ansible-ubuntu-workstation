@@ -5,7 +5,7 @@
   become_method: sudo
   ansible.builtin.apt:
     deb: "{{ item.url }}"
-  loop: "{{ misc_debs }}"
+  loop: "{{ misc_debs_selected }}"
   loop_control:
     label: "{{ item.name }}"
 
@@ -14,6 +14,7 @@
   become_user: root
   become_method: sudo
   ansible.builtin.apt:
-    name: "{{ misc_apt_packages | map(attribute='name') | list }}"
+    name: "{{ misc_apt_packages_selected | map(attribute='name') | list }}"
     state: present
     update_cache: true
+  when: misc_apt_packages_selected | length > 0

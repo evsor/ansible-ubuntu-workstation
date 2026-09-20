@@ -17,3 +17,7 @@ misc_apt_packages: # Keep in alphabetical order
   - { name: gnome-shell-extension-appindicator, profiles: [personal, work] }
   - { name: libayatana-appindicator3-1, profiles: [personal, work] }
   - { name: proton-vpn-gnome-desktop, profiles: [personal, work] }
+
+# Profile-filtered views of the catalogs above.
+misc_debs_selected: "{{ misc_debs | selectattr('profiles', 'contains', profile) | list }}"
+misc_apt_packages_selected: "{{ misc_apt_packages | selectattr('profiles', 'contains', profile) | list }}"

@@ -11,9 +11,8 @@
     architectures: "{{ item.architectures | default(omit) }}"
     signed_by: "{{ item.signed_by }}"
     state: present
-    # base runs first, so a fresh machine may not have the library yet
     install_python_debian: true
-  loop: "{{ base_apt_repos }}"
+  loop: "{{ base_apt_repos_selected }}"
   loop_control:
     label: "{{ item.name }}"
 
@@ -22,25 +21,26 @@
   become_user: root
   become_method: sudo
   ansible.builtin.apt:
-    name: "{{ base_apt_packages | map(attribute='name') | list }}"
+    name: "{{ base_apt_packages_selected | map(attribute='name') | list }}"
     state: present
     update_cache: true
+  when: base_apt_packages_selected | length > 0
 
 - name: Install base snaps
   community.general.snap:
-    name: "{{ base_snaps | rejectattr('classic') | map(attribute='name') | list }}"
+    name: "{{ base_snaps_selected | rejectattr('classic') | map(attribute='name') | list }}"
     state: present
-  when: base_snaps | rejectattr('classic') | list | length > 0
+  when: base_snaps_selected | rejectattr('classic') | list | length > 0
 
 - name: Install base snaps with classic confinement
   become: true
   become_user: root
   become_method: sudo
   community.general.snap:
-    name: "{{ base_snaps | selectattr('classic') | map(attribute='name') | list }}"
+    name: "{{ base_snaps_selected | selectattr('classic') | map(attribute='name') | list }}"
     state: present
     classic: true
-  when: base_snaps | selectattr('classic') | list | length > 0
+  when: base_snaps_selected | selectattr('classic') | list | length > 0
 
 - name: Generate SSH key
   openssh_keypair:

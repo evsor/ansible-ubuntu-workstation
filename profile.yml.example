@@ -1,0 +1,8 @@
+---
+# Copy this to profile.yml to pin the profile for this machine:
+#
+#   cp profile.yml.example profile.yml
+#
+# profile.yml is gitignored, so each workstation keeps its own. Without it you
+# must pass the profile on every run: -e profile=work
+profile: personal
