@@ -1,2 +1,5 @@
 # Per-machine profile selection, see profile.yml.example
 profile.yml
+
+# Python bytecode from the filter plugin and its tests
+__pycache__/

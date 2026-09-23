@@ -1,17 +1,18 @@
 ---
-# Catalog of everything the `base` role manages.
+# Software installation catalog filter_plugins/catalog.py.
 #
-# profiles:  which workstation profiles receive this item (used from Phase 2 on)
-# removable: false marks packages that uninstall must never remove, because
-#            doing so would break the system or Ansible itself.
+# An entry is present on every profile unless `profiles` is defined. The
+# three states are present, absent and ignore:
+#
+#   - { name: htop }                                   present everywhere
+#   - { name: slack, profiles: { personal: absent } }   work only, removed from personal
+#   - { name: steam, profiles: { work: ignore } }       personal only, work ignored
+#   - { name: firefox, profiles: { personal: absent, work: absent } }
+#                                                      removed on both profiles
+#   - { name: cache, user_data: true }                 removed only with -e remove_user_data=true
 
-# The PPA is spelled out rather than given as `ppa:phoerious/keepassxc`.
-# Ansible's PPA shorthand shells out to the deprecated apt-key, which drops the
-# signing key into the global /etc/apt/trusted.gpg, where it then vouches for
-# every repository on the system. Naming the archive explicitly lets
-# deb822_repository keep the key in its own keyring, scoped to this repo alone.
-#
-# signed_by: the PPA's Launchpad signing key, fetched by fingerprint
+protonvpn_version: 1.0.8
+
 base_apt_repos:
   - name: keepassxc
     uris: "https://ppa.launchpadcontent.net/phoerious/keepassxc/ubuntu"
@@ -19,33 +20,37 @@ base_apt_repos:
     components: [main]
     architectures: [amd64]
     signed_by: "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xD89C66D0E31FEA2874EBD20561922AB60068FCD6&options=mr"
-    profiles: [personal, work]
+
+base_debs:
+  - name: protonvpn-release
+    package: protonvpn-stable-release
+    url: "https://repo.protonvpn.com/debian/dists/stable/main/binary-all/protonvpn-stable-release_{{ protonvpn_version }}_all.deb"
 
 base_apt_packages: # Keep in alphabetical order
-  - { name: arc-theme, profiles: [personal, work] }
-  - { name: apt-transport-https, profiles: [personal, work], removable: false }
-  - { name: ca-certificates, profiles: [personal, work], removable: false }
-  - { name: curl, profiles: [personal, work], removable: false }
-  - { name: dropbox, profiles: [personal, work] }
-  - { name: git, profiles: [personal, work], removable: false }
-  - { name: gnome-tweaks, profiles: [personal, work] }
-  - { name: gnome-shell-extension-manager, profiles: [personal, work] }
-  - { name: gnupg, profiles: [personal, work], removable: false }
-  - { name: htop, profiles: [personal, work] }
-  - { name: keepassxc, profiles: [personal, work] }
-  - { name: python3-pip, profiles: [personal, work], removable: false }
-  - { name: python3-kubernetes, profiles: [personal, work] }
-  - { name: ripgrep, profiles: [personal, work] }
-  - { name: software-properties-common, profiles: [personal, work], removable: false }
-  - { name: stow, profiles: [personal, work] }
-  - { name: terminator, profiles: [personal, work] }
-  - { name: x11-utils, profiles: [personal, work] }
+  - { name: arc-theme }
+  - { name: apt-transport-https }
+  - { name: ca-certificates }
+  - { name: curl }
+  - { name: dropbox }
+  - { name: gir1.2-ayatanaappindicator3-0.1 }
+  - { name: git }
+  - { name: gnome-tweaks }
+  - { name: gnome-shell-extension-appindicator }
+  - { name: gnome-shell-extension-manager }
+  - { name: gnupg }
+  - { name: htop }
+  - { name: keepassxc }
+  - { name: libayatana-appindicator3-1 }
+  - { name: proton-vpn-gnome-desktop }
+  - { name: python3-pip }
+  - { name: python3-kubernetes }
+  - { name: ripgrep }
+  - { name: software-properties-common }
+  - { name: stow }
+  - { name: terminator }
+  - { name: x11-utils }
 
 base_snaps: # Keep in alphabetical order
-  - { name: chromium, classic: false, profiles: [personal, work] }
-  - { name: go, classic: true, profiles: [personal, work] }
-
-# Profile-filtered views of the catalogs
-base_apt_repos_selected: "{{ base_apt_repos | selectattr('profiles', 'contains', profile) | list }}"
-base_apt_packages_selected: "{{ base_apt_packages | selectattr('profiles', 'contains', profile) | list }}"
-base_snaps_selected: "{{ base_snaps | selectattr('profiles', 'contains', profile) | list }}"
+  - { name: chromium, classic: false }
+  - { name: firefox, classic: false, profiles: { personal: absent, work: absent } } # ships with Ubuntu
+  - { name: go, classic: true }

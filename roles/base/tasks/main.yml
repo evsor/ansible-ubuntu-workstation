@@ -1,56 +1,86 @@
 ---
-- name: Add apt repositories
+- name: Manage apt repositories
   become: true
   become_user: root
   become_method: sudo
   ansible.builtin.deb822_repository:
     name: "{{ item.name }}"
-    uris: "{{ item.uris }}"
-    suites: "{{ item.suites }}"
-    components: "{{ item.components | default(omit) }}"
-    architectures: "{{ item.architectures | default(omit) }}"
-    signed_by: "{{ item.signed_by }}"
-    state: present
+    uris: "{{ item.uris if item.state == 'present' else omit }}"
+    suites: "{{ item.suites if item.state == 'present' else omit }}"
+    components: "{{ item.components | default(omit) if item.state == 'present' else omit }}"
+    architectures: "{{ item.architectures | default(omit) if item.state == 'present' else omit }}"
+    signed_by: "{{ item.signed_by if item.state == 'present' else omit }}"
+    state: "{{ item.state }}"
     install_python_debian: true
-  loop: "{{ base_apt_repos_selected }}"
+  loop: "{{ base_apt_repos | managed(workstation) }}"
   loop_control:
-    label: "{{ item.name }}"
+    label: "{{ item.name }} ({{ item.state }})"
+  register: base_repos
 
-- name: Install base packages
+- name: Remove apt repository keyrings
+  become: true
+  become_user: root
+  become_method: sudo
+  ansible.builtin.file:
+    path: "{{ item.key_filename | default('/etc/apt/keyrings/' ~ item.item.name ~ '.asc', true) }}"
+    state: absent
+  loop: "{{ base_repos.results }}"
+  loop_control:
+    label: "{{ item.item.name }}"
+  # Not for the repo it's run just added
+  when: item.item.state == 'absent'
+
+- name: Manage .deb packages
   become: true
   become_user: root
   become_method: sudo
   ansible.builtin.apt:
-    name: "{{ base_apt_packages_selected | map(attribute='name') | list }}"
-    state: present
-    update_cache: true
-  when: base_apt_packages_selected | length > 0
+    deb: "{{ item.url if item.state == 'present' else omit }}"
+    name: "{{ item.package if item.state == 'absent' else omit }}"
+    state: "{{ item.state }}"
+    autoremove: "{{ item.state == 'absent' }}"
+  loop: "{{ base_debs | managed(workstation) }}"
+  loop_control:
+    label: "{{ item.name }} ({{ item.state }})"
 
-- name: Install base snaps
-  community.general.snap:
-    name: "{{ base_snaps_selected | rejectattr('classic') | map(attribute='name') | list }}"
-    state: present
-  when: base_snaps_selected | rejectattr('classic') | list | length > 0
+- name: Manage packages
+  become: true
+  become_user: root
+  become_method: sudo
+  ansible.builtin.apt:
+    name: "{{ packages }}"
+    state: "{{ item }}"
+    update_cache: "{{ item == 'present' }}"
+    autoremove: "{{ item == 'absent' }}"
+  vars:
+    packages: "{{ base_apt_packages | managed(workstation, item) | map(attribute='name') | list }}"
+  loop: [present, absent]
+  when: packages | length > 0
 
-- name: Install base snaps with classic confinement
+- name: Manage snaps
   become: true
   become_user: root
   become_method: sudo
   community.general.snap:
-    name: "{{ base_snaps_selected | selectattr('classic') | map(attribute='name') | list }}"
-    state: present
-    classic: true
-  when: base_snaps_selected | selectattr('classic') | list | length > 0
+    name: "{{ item.name }}"
+    state: "{{ item.state }}"
+    classic: "{{ item.classic if item.state == 'present' else omit }}"
+  loop: "{{ base_snaps | managed(workstation) }}"
+  loop_control:
+    label: "{{ item.name }} ({{ item.state }})"
 
 - name: Generate SSH key
   openssh_keypair:
     path: "{{ home_dir }}/.ssh/id_rsa"
     size: 2048
     owner: "{{ local_user }}"
+  when: workstation.state == 'present'
 
-- name: Add GitHub to known hosts
+- name: Manage GitHub known host
   ansible.builtin.known_hosts:
     path: /etc/ssh/ssh_known_hosts
     name: github.com
-    key: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
-    state: present
+    key: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') if workstation.state == 'present' else omit }}"
+    state: "{{ workstation.state }}"
+  when: workstation.state == 'present' or workstation.remove_user_data
+

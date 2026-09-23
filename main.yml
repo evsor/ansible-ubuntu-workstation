@@ -1,4 +1,8 @@
 ---
+# Converges the workstation to its profile: installs what the catalogs want
+# present and removes what they mark absent. Tear everything down with
+# -e workstation_state=absent (add -e remove_user_data=true for dotfiles, the
+# terraform cache and docker group membership).
 - name: Bootstrap Workstation
   hosts: localhost
   gather_facts: true
@@ -6,46 +10,65 @@
   vars:
     # Software profiles available for the workstation
     workstation_profiles: [personal, work]
+    workstation_state: present
+    # Teardown runs these in reverse, so e.g. dotfiles unstows before base
+    # removes stow, and packages go before the repositories that provide them.
+    workstation_roles: [base, dotfiles, tools]
 
   pre_tasks:
-  - name: Set local user fact
-    ansible.builtin.set_fact:
-      local_user: "user"
-      home_dir: "/home/user"
+    - name: Set local user fact
+      ansible.builtin.set_fact:
+        local_user: "user"
+        home_dir: "/home/user"
 
-  - name: Look for a per-machine profile file
-    ansible.builtin.stat:
-      path: "{{ playbook_dir }}/profile.yml"
-    register: profile_file
+    - name: Look for a per-machine profile file
+      ansible.builtin.stat:
+        path: "{{ playbook_dir }}/profile.yml"
+      register: profile_file
 
-  # Skipped when -e profile=... is passed
-  - name: Load per-machine profile
-    ansible.builtin.include_vars:
-      file: "{{ playbook_dir }}/profile.yml"
-    when:
-      - profile is not defined
-      - profile_file.stat.exists
+    # Skipped when -e profile=... is passed
+    - name: Load per-machine profile
+      ansible.builtin.include_vars:
+        file: "{{ playbook_dir }}/profile.yml"
+      when:
+        - profile is not defined
+        - profile_file.stat.exists
 
-  - name: Validate profile
-    ansible.builtin.assert:
-      that:
-        - profile is defined
-        - profile in workstation_profiles
-      fail_msg: >-
-        'profile' must be one of: {{ workstation_profiles | join(', ') }}.
-        Pass it with -e profile=work, or write to profile.yml (see profile.yml.example)
-      quiet: true
+    - name: Validate profile and state
+      ansible.builtin.assert:
+        that:
+          - profile is defined
+          - profile in workstation_profiles
+          - workstation_state in ['present', 'absent']
+        fail_msg: >-
+          'profile' must be one of: {{ workstation_profiles | join(', ') }}
+          (pass -e profile=work, or write it to profile.yml, see profile.yml.example),
+          and 'workstation_state' must be present or absent.
+        quiet: true
 
-  - name: Print facts
-    ansible.builtin.debug:
-      msg:
-        - Profile is {{ profile }}
-        - Local user is {{ local_user }}
-        - User directory is "{{ home_dir }}"
+    # Everything the catalog filter needs, in one place. Roles pass this to
+    # `managed` (filter_plugins/catalog.py).
+    - name: Describe this run
+      ansible.builtin.set_fact:
+        workstation:
+          profile: "{{ profile }}"
+          profiles: "{{ workstation_profiles }}"
+          state: "{{ workstation_state }}"
+          remove_user_data: "{{ remove_user_data | default(false) | bool }}"
 
-  roles:
-    - base
-    - dotfiles
-    - tools
-    - misc
-    - cleanup
+    - name: Print facts
+      ansible.builtin.debug:
+        msg:
+          - Action is {{ 'CONVERGE' if workstation.state == 'present' else 'TEARDOWN' }}
+          - Profile is {{ workstation.profile }}
+          - "Remove user data: {{ workstation.remove_user_data }}"
+          - Local user is {{ local_user }}
+          - User directory is "{{ home_dir }}"
+
+  tasks:
+    - name: Run roles
+      ansible.builtin.include_role:
+        name: "{{ role }}"
+      loop: "{{ workstation_roles if workstation_state == 'present' else workstation_roles | reverse | list }}"
+      loop_control:
+        loop_var: role

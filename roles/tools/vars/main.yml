@@ -15,11 +15,13 @@ k3d_version: 5.8.3
 cilium_version: 0.18.8
 kubeseal_version: 0.33.1
 
-# Software installation catalog
+# Software installation catalog. Entries are present on every profile unless
+# they say otherwise, see filter_plugins/catalog.py:
 #
-# profiles: where the tool gets installed
-# files:    every path a tarball extracts, verified against the actual release artifact. Needed to proper cleanup
-# package:  for removal by name
+#   profiles:  per-profile state, e.g. { personal: absent } or { work: ignore }
+#   user_data: true to remove only when remove_user_data is set
+#   files:     every path a tarball extracts, verified against the actual release artifact. Needed to proper cleanup
+#   package:   for removal by name
 
 tools_apt_repos:
   - name: vscode
@@ -28,14 +30,12 @@ tools_apt_repos:
     components: [main]
     architectures: [amd64, arm64, armhf]
     signed_by: "https://packages.microsoft.com/keys/microsoft.asc"
-    profiles: [personal, work]
 
   - name: kubernetes
     uris: "https://pkgs.k8s.io/core:/stable:/v{{ kubectl_version }}/deb/"
     suites: ["/"]
     architectures: [amd64, arm64, armhf]
     signed_by: "https://pkgs.k8s.io/core:/stable:/v{{ kubectl_version }}/deb/Release.key"
-    profiles: [personal, work]
 
   - name: docker
     uris: "https://download.docker.com/linux/ubuntu"
@@ -43,14 +43,12 @@ tools_apt_repos:
     components: [stable]
     architectures: [amd64]
     signed_by: "https://download.docker.com/linux/ubuntu/gpg"
-    profiles: [personal, work]
 
   - name: google-cloud
     uris: "https://packages.cloud.google.com/apt"
     suites: [cloud-sdk]
     components: [main]
     signed_by: "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
-    profiles: [personal, work]
 
   - name: openvpn
     uris: "https://packages.openvpn.net/openvpn3/debian"
@@ -58,14 +56,12 @@ tools_apt_repos:
     components: [main]
     architectures: [amd64]
     signed_by: "https://packages.openvpn.net/packages-repo.gpg"
-    profiles: [personal, work]
 
   - name: hashicorp
     uris: "https://apt.releases.hashicorp.com"
     suites: ["{{ ansible_distribution_release }}"]
     components: [main]
     signed_by: "https://apt.releases.hashicorp.com/gpg"
-    profiles: [personal, work]
 
   - name: helm
     uris: "https://packages.buildkite.com/helm-linux/helm-debian/any/"
@@ -73,7 +69,6 @@ tools_apt_repos:
     components: [main]
     architectures: [amd64]
     signed_by: "https://packages.buildkite.com/helm-linux/helm-debian/gpgkey"
-    profiles: [personal, work]
 
   - name: mongodb
     uris: "https://repo.mongodb.org/apt/ubuntu"
@@ -81,132 +76,106 @@ tools_apt_repos:
     components: [multiverse]
     architectures: [amd64]
     signed_by: "https://www.mongodb.org/static/pgp/server-{{ mongodb_version }}.asc"
-    profiles: [personal, work]
 
 tools_apt_packages: # Keep in alphabetical order
-  - { name: code, profiles: [personal, work] }
-  - { name: containerd.io, profiles: [personal, work] }
-  - { name: docker-ce, profiles: [personal, work] }
-  - { name: docker-ce-cli, profiles: [personal, work] }
-  - { name: docker-buildx-plugin, profiles: [personal, work] }
-  - { name: docker-compose-plugin, profiles: [personal, work] }
-  - { name: google-cloud-cli, profiles: [personal, work] }
-  - { name: google-cloud-sdk-gke-gcloud-auth-plugin, profiles: [personal, work] }
-  - { name: helm, profiles: [personal, work] }
-  - { name: kubectl, profiles: [personal, work] }
-  - { name: mongodb-mongosh, profiles: [personal, work] }
-  - { name: openvpn3, profiles: [personal, work] }
-  - { name: skopeo, profiles: [personal, work] }
-  - { name: terraform, profiles: [personal, work] }
-  - { name: vault, profiles: [personal, work] }
+  - { name: code }
+  - { name: containerd.io }
+  - { name: docker-ce }
+  - { name: docker-ce-cli }
+  - { name: docker-buildx-plugin }
+  - { name: docker-compose-plugin }
+  - { name: google-cloud-cli }
+  - { name: google-cloud-sdk-gke-gcloud-auth-plugin }
+  - { name: helm }
+  - { name: kubectl }
+  - { name: mongodb-mongosh }
+  - { name: openvpn3 }
+  - { name: skopeo }
+  - { name: terraform }
+  - { name: vault }
 
 tools_binaries:
   - name: switcher
     url: "https://github.com/danielfoehrKn/kubeswitch/releases/download/{{ kubeswitch_version }}/switcher_linux_amd64"
     dest: /usr/local/bin/switcher
-    profiles: [personal, work]
 
   - name: sops
     url: "https://github.com/getsops/sops/releases/download/v{{ sops_version }}/sops-v{{ sops_version }}.linux.amd64"
     dest: /usr/local/bin/sops
-    profiles: [personal, work]
 
   - name: yq
     url: "https://github.com/mikefarah/yq/releases/download/v{{ yq_version }}/yq_linux_amd64"
     dest: /usr/local/bin/yq
-    profiles: [personal, work]
 
   - name: jb
     url: "https://github.com/jsonnet-bundler/jsonnet-bundler/releases/download/v{{ jb_version }}/jb-linux-amd64"
     dest: /usr/local/bin/jb
-    profiles: [personal, work]
 
   - name: argocd
     url: "https://github.com/argoproj/argo-cd/releases/download/v{{ argocd_version }}/argocd-linux-amd64"
     dest: /usr/local/bin/argocd
-    profiles: [personal, work]
 
   - name: minikube
     url: "https://github.com/kubernetes/minikube/releases/latest/download/minikube-linux-amd64"
     dest: /usr/local/bin/minikube
-    profiles: [personal, work]
 
   - name: k3d
     url: "https://github.com/k3d-io/k3d/releases/download/v{{ k3d_version }}/k3d-linux-amd64"
     dest: /usr/local/bin/k3d
-    profiles: [personal, work]
 
 tools_tarballs:
   - name: fzf
     url: "https://github.com/junegunn/fzf/releases/download/v{{ fzf_version }}/fzf-{{ fzf_version }}-linux_amd64.tar.gz"
     dest: /usr/local/bin/
     files: [fzf]
-    profiles: [personal, work]
 
   - name: qbec
     url: "https://github.com/splunk/qbec/releases/download/v{{ qbec_version }}/qbec-linux-amd64.tar.gz"
     dest: /usr/local/bin/
     files: [qbec, jsonnet-qbec, CHANGELOG.md, LICENSE, README.md, licenselint.sh]
-    profiles: [personal, work]
 
   - name: kubetlkt
     url: "https://github.com/evsor/kubetoolkit/releases/download/v{{ kubetlkt_version }}/kubetlkt-v{{ kubetlkt_version }}-linux-amd64.tar.gz"
     dest: /usr/local/bin/
     files: [kubetlkt]
-    profiles: [personal, work]
 
   - name: cmctl
     url: "https://github.com/cert-manager/cmctl/releases/download/v{{ cmctl_version }}/cmctl_linux_amd64.tar.gz"
     dest: /usr/local/bin/
     files: [cmctl, LICENSE, README.md]
-    profiles: [personal, work]
 
   - name: cilium
     url: "https://github.com/cilium/cilium-cli/releases/download/v{{ cilium_version }}/cilium-linux-amd64.tar.gz"
     dest: /usr/local/bin/
     files: [cilium]
-    profiles: [personal, work]
 
   - name: kubeseal
     url: "https://github.com/bitnami-labs/sealed-secrets/releases/download/v{{ kubeseal_version }}/kubeseal-{{ kubeseal_version }}-linux-amd64.tar.gz"
     dest: /usr/local/bin/
     files: [kubeseal, LICENSE, README.md]
-    profiles: [personal, work]
 
 tools_debs:
   - name: k9s
     package: k9s
     url: "https://github.com/derailed/k9s/releases/download/v{{ k9s_version }}/k9s_linux_amd64.deb"
-    profiles: [personal, work]
 
 # user_data: do not remove user data directories
 tools_directories:
   - path: "{{ home_dir }}/.terraform.d/plugin-cache"
     user_data: true
-    profiles: [personal, work]
 
 tools_helm_repos:
   - name: hashicorp
     url: "https://helm.releases.hashicorp.com"
-    profiles: [personal, work]
 
 tools_helm_plugins:
+  # plugin_name is what `helm plugin list` reports, which is not the repo name.
+  # Removal matches on it, installation uses the url.
   - name: helm-diff
+    plugin_name: diff
     url: https://github.com/databus23/helm-diff
-    profiles: [personal, work]
 
 # Supplementary groups the local user is added to.
 tools_user_groups:
   - name: docker
-    profiles: [personal, work]
-
-# Profile-filtered views of the catalogs
-tools_apt_repos_selected: "{{ tools_apt_repos | selectattr('profiles', 'contains', profile) | list }}"
-tools_apt_packages_selected: "{{ tools_apt_packages | selectattr('profiles', 'contains', profile) | list }}"
-tools_binaries_selected: "{{ tools_binaries | selectattr('profiles', 'contains', profile) | list }}"
-tools_tarballs_selected: "{{ tools_tarballs | selectattr('profiles', 'contains', profile) | list }}"
-tools_debs_selected: "{{ tools_debs | selectattr('profiles', 'contains', profile) | list }}"
-tools_directories_selected: "{{ tools_directories | selectattr('profiles', 'contains', profile) | list }}"
-tools_helm_repos_selected: "{{ tools_helm_repos | selectattr('profiles', 'contains', profile) | list }}"
-tools_helm_plugins_selected: "{{ tools_helm_plugins | selectattr('profiles', 'contains', profile) | list }}"
-tools_user_groups_selected: "{{ tools_user_groups | selectattr('profiles', 'contains', profile) | list }}"
+    user_data: true

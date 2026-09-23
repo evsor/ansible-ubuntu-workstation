@@ -1,28 +1,56 @@
 ---
-- name: Install from external repositories
+# Additions first, removals last, with tasks that handle both states in
+# between. Helm sits in the middle because it needs the helm package, which
+# is installed above and removed below. What goes where is decided by
+# `managed`, see filter_plugins/catalog.py.
+
+# ---------------------------------------------------------------- additions
+
+# Removal only needs the name, and passing signed_by would fetch the key just
+# to throw it away.
+- name: Manage apt repositories
   become: true
   become_user: root
   become_method: sudo
-  block:
-    - name: Install repo
-      ansible.builtin.deb822_repository:
-        name: "{{ item.name }}"
-        uris: "{{ item.uris }}"
-        suites: "{{ item.suites }}"
-        components: "{{ item.components | default(omit) }}"
-        architectures: "{{ item.architectures | default(omit) }}"
-        signed_by: "{{ item.signed_by }}"
-        state: present
-      loop: "{{ tools_apt_repos_selected }}"
-      loop_control:
-        label: "{{ item.name }}"
+  ansible.builtin.deb822_repository:
+    name: "{{ item.name }}"
+    uris: "{{ item.uris if item.state == 'present' else omit }}"
+    suites: "{{ item.suites if item.state == 'present' else omit }}"
+    components: "{{ item.components | default(omit) if item.state == 'present' else omit }}"
+    architectures: "{{ item.architectures | default(omit) if item.state == 'present' else omit }}"
+    signed_by: "{{ item.signed_by if item.state == 'present' else omit }}"
+    state: "{{ item.state }}"
+  loop: "{{ tools_apt_repos | managed(workstation) }}"
+  loop_control:
+    label: "{{ item.name }} ({{ item.state }})"
+  register: tools_repos
 
-    - name: Install packages
-      ansible.builtin.apt:
-        name: "{{ tools_apt_packages_selected | map(attribute='name') | list }}"
-        state: latest
-        update_cache: true
-      when: tools_apt_packages_selected | length > 0
+# deb822_repository drops the .sources file but leaves the keyring it fetched
+# for signed_by. Prefer the path the module reports, else its naming convention.
+- name: Remove apt repository keyrings
+  become: true
+  become_user: root
+  become_method: sudo
+  ansible.builtin.file:
+    path: "{{ item.key_filename | default('/etc/apt/keyrings/' ~ item.item.name ~ '.asc', true) }}"
+    state: absent
+  loop: "{{ tools_repos.results }}"
+  loop_control:
+    label: "{{ item.item.name }}"
+  # never for a repository this run just added
+  when: item.item.state == 'absent'
+
+- name: Install packages
+  become: true
+  become_user: root
+  become_method: sudo
+  ansible.builtin.apt:
+    name: "{{ packages }}"
+    state: latest
+    update_cache: true
+  vars:
+    packages: "{{ tools_apt_packages | managed(workstation, 'present') | map(attribute='name') | list }}"
+  when: packages | length > 0
 
 - name: Install tools from GitHub releases
   become: true
@@ -34,7 +62,7 @@
     owner: "{{ local_user }}"
     group: "{{ local_user }}"
     mode: '755'
-  loop: "{{ tools_binaries_selected }}"
+  loop: "{{ tools_binaries | managed(workstation, 'present') }}"
   loop_control:
     label: "{{ item.name }}"
 
@@ -49,33 +77,128 @@
     group: "{{ local_user }}"
     mode: '755'
     remote_src: true
-  loop: "{{ tools_tarballs_selected }}"
+  loop: "{{ tools_tarballs | managed(workstation, 'present') }}"
   loop_control:
     label: "{{ item.name }}"
 
-- name: Install tools from .deb packages
+- name: Add user to supplementary groups
+  become: true
+  become_user: root
+  become_method: sudo
+  ansible.builtin.user:
+    name: "{{ local_user }}"
+    groups: "{{ groups_wanted }}"
+    append: true
+  vars:
+    groups_wanted: "{{ tools_user_groups | managed(workstation, 'present') | map(attribute='name') | list }}"
+  when: groups_wanted | length > 0
+
+# ------------------------------------------------------------- both states
+
+- name: Manage .deb packages
   become: true
   become_user: root
   become_method: sudo
   ansible.builtin.apt:
-    deb: "{{ item.url }}"
-  loop: "{{ tools_debs_selected }}"
+    deb: "{{ item.url if item.state == 'present' else omit }}"
+    name: "{{ item.package if item.state == 'absent' else omit }}"
+    state: "{{ item.state }}"
+    autoremove: "{{ item.state == 'absent' }}"
+  loop: "{{ tools_debs | managed(workstation) }}"
   loop_control:
-    label: "{{ item.name }}"
+    label: "{{ item.name }} ({{ item.state }})"
 
-- name: Create additional directories
+- name: Manage additional directories
   ansible.builtin.file:
     path: "{{ item.path }}"
-    owner: "{{ local_user }}"
-    group: "{{ local_user }}"
-    state: directory
-    mode: '0755'
-  loop: "{{ tools_directories_selected }}"
+    state: "{{ 'directory' if item.state == 'present' else 'absent' }}"
+    owner: "{{ local_user if item.state == 'present' else omit }}"
+    group: "{{ local_user if item.state == 'present' else omit }}"
+    mode: "{{ '0755' if item.state == 'present' else omit }}"
+  loop: "{{ tools_directories | managed(workstation) }}"
   loop_control:
-    label: "{{ item.path }}"
+    label: "{{ item.path }} ({{ item.state }})"
 
-- name: Include Helm specific tasks
-  ansible.builtin.include_tasks: helm.yml
+# A removal is allowed to fail: re-running a teardown once helm itself is gone
+# should not stop the run.
+- name: Manage Helm repositories
+  kubernetes.core.helm_repository:
+    repo_name: "{{ item.name }}"
+    repo_url: "{{ item.url }}"
+    state: "{{ item.state }}"
+  loop: "{{ tools_helm_repos | managed(workstation) }}"
+  loop_control:
+    label: "{{ item.name }} ({{ item.state }})"
+  register: helm_repo_result
+  failed_when: helm_repo_result is failed and item.state == 'present'
 
-- name: Include docker specific tasks
-  ansible.builtin.include_tasks: docker.yml
+- name: Manage Helm plugins
+  # The module takes exactly one of these: a path to install, a name to remove.
+  kubernetes.core.helm_plugin:
+    plugin_path: "{{ item.url if item.state == 'present' else omit }}"
+    plugin_name: "{{ item.plugin_name if item.state == 'absent' else omit }}"
+    state: "{{ item.state }}"
+  loop: "{{ tools_helm_plugins | managed(workstation) }}"
+  loop_control:
+    label: "{{ item.plugin_name }} ({{ item.state }})"
+  register: helm_plugin_result
+  failed_when: helm_plugin_result is failed and item.state == 'present'
+
+# ----------------------------------------------------------------- removals
+
+- name: Check current group membership
+  ansible.builtin.command: "id -nG {{ local_user }}"
+  register: current_groups
+  changed_when: false
+  # read-only, and needed by the next task during --check too
+  check_mode: false
+
+- name: Remove user from supplementary groups
+  become: true
+  become_user: root
+  become_method: sudo
+  ansible.builtin.command: "gpasswd --delete {{ local_user }} {{ item.name }}"
+  loop: "{{ tools_user_groups | managed(workstation, 'absent') }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when: item.name in current_groups.stdout.split()
+  changed_when: true
+
+# Uses the recorded file list rather than globbing, so only what this playbook
+# extracted is removed. /usr/local/bin holds plenty it did not put there.
+- name: Remove files extracted from tarballs
+  become: true
+  become_user: root
+  become_method: sudo
+  ansible.builtin.file:
+    path: "{{ [item.0.dest, item.1] | path_join }}"
+    state: absent
+  loop: "{{ tools_tarballs | managed(workstation, 'absent') | subelements('files') }}"
+  loop_control:
+    label: "{{ [item.0.dest, item.1] | path_join }}"
+
+- name: Remove tools from GitHub releases
+  become: true
+  become_user: root
+  become_method: sudo
+  ansible.builtin.file:
+    path: "{{ item.dest }}"
+    state: absent
+  loop: "{{ tools_binaries | managed(workstation, 'absent') }}"
+  loop_control:
+    label: "{{ item.dest }}"
+
+# Not merged with the install above the way base does it: removal has to
+# happen after the Helm tasks, which need the helm package to still be there.
+- name: Remove packages
+  become: true
+  become_user: root
+  become_method: sudo
+  ansible.builtin.apt:
+    name: "{{ packages }}"
+    state: absent
+    autoremove: true
+  vars:
+    packages: "{{ tools_apt_packages | managed(workstation, 'absent') | map(attribute='name') | list }}"
+  when: packages | length > 0
+
