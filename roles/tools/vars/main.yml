@@ -14,6 +14,8 @@ cmctl_version: 2.3.0
 k3d_version: 5.8.3
 cilium_version: 0.18.8
 kubeseal_version: 0.33.1
+glab_version: 1.119.0
+gws_version: 0.22.5
 
 # Software installation catalog. Entries are present on every profile unless
 # they say otherwise, see filter_plugins/catalog.py:
@@ -77,6 +79,14 @@ tools_apt_repos:
     architectures: [amd64]
     signed_by: "https://www.mongodb.org/static/pgp/server-{{ mongodb_version }}.asc"
 
+  # One suite for every Debian derivative, so it does not follow the release.
+  - name: github-cli
+    uris: "https://cli.github.com/packages"
+    suites: [stable]
+    components: [main]
+    architectures: [amd64]
+    signed_by: "https://cli.github.com/packages/githubcli-archive-keyring.gpg"
+
 tools_apt_packages: # Keep in alphabetical order
   - { name: code }
   - { name: containerd.io }
@@ -84,6 +94,7 @@ tools_apt_packages: # Keep in alphabetical order
   - { name: docker-ce-cli }
   - { name: docker-buildx-plugin }
   - { name: docker-compose-plugin }
+  - { name: gh }
   - { name: google-cloud-cli }
   - { name: google-cloud-sdk-gke-gcloud-auth-plugin }
   - { name: helm }
@@ -154,10 +165,23 @@ tools_tarballs:
     dest: /usr/local/bin/
     files: [kubeseal, LICENSE, README.md]
 
+  # Google Workspace CLI. The tarball is named for the Rust target triple, the
+  # binary it carries is `gws`.
+  - name: gws
+    url: "https://github.com/googleworkspace/cli/releases/download/v{{ gws_version }}/google-workspace-cli-x86_64-unknown-linux-gnu.tar.gz"
+    dest: /usr/local/bin/
+    files: [gws, CHANGELOG.md, LICENSE, README.md]
+    profiles: { personal: absent }
+
 tools_debs:
   - name: k9s
     package: k9s
     url: "https://github.com/derailed/k9s/releases/download/v{{ k9s_version }}/k9s_linux_amd64.deb"
+
+  # GitLab CLI. The download path redirects to the generic package registry.
+  - name: glab
+    package: glab
+    url: "https://gitlab.com/gitlab-org/cli/-/releases/v{{ glab_version }}/downloads/glab_{{ glab_version }}_linux_amd64.deb"
 
 # user_data: do not remove user data directories
 tools_directories:
@@ -171,9 +195,15 @@ tools_helm_repos:
 tools_helm_plugins:
   # plugin_name is what `helm plugin list` reports, which is not the repo name.
   # Removal matches on it, installation uses the url.
+  #
+  # verify: Helm 4 verifies plugin provenance on install by default, and a git
+  # checkout carries none, so the install aborts before helm can report that the
+  # plugin is already there. Signed release tarballs would verify, but only
+  # against a keyring holding the author's public key.
   - name: helm-diff
     plugin_name: diff
     url: https://github.com/databus23/helm-diff
+    verify: false
 
 # Supplementary groups the local user is added to.
 tools_user_groups:

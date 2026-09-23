@@ -137,6 +137,7 @@
   kubernetes.core.helm_plugin:
     plugin_path: "{{ item.url if item.state == 'present' else omit }}"
     plugin_name: "{{ item.plugin_name if item.state == 'absent' else omit }}"
+    verify: "{{ item.verify | default(omit) }}"
     state: "{{ item.state }}"
   loop: "{{ tools_helm_plugins | managed(workstation) }}"
   loop_control:
