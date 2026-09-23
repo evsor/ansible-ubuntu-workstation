@@ -1,6 +1,0 @@
----
-- name: Remove unnecessary snaps
-  community.general.snap:
-    name: "{{ cleanup_snaps_absent_selected | map(attribute='name') | list }}"
-    state: absent
-  when: cleanup_snaps_absent_selected | length > 0
