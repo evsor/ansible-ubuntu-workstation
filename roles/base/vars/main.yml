@@ -1,8 +1,8 @@
 ---
 # Software installation catalog filter_plugins/catalog.py.
 #
-# An entry is present on every profile unless `profiles` is defined. The
-# three states are present, absent and ignore:
+# An entry is present on every profile unless `profiles` is defined.
+# States are: present, absent and ignore
 #
 #   - { name: htop }                                   present everywhere
 #   - { name: slack, profiles: { personal: absent } }   work only, removed from personal
