@@ -53,4 +53,4 @@ base_apt_packages: # Keep in alphabetical order
 base_snaps: # Keep in alphabetical order
   - { name: chromium, classic: false }
   - { name: firefox, classic: false, profiles: { personal: absent, work: absent } } # ships with Ubuntu
-  - { name: go, classic: true }
+  - { name: go, classic: true, profiles: { personal: absent, work: present } }

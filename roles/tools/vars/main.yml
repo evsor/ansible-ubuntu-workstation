@@ -51,6 +51,7 @@ tools_apt_repos:
     suites: [cloud-sdk]
     components: [main]
     signed_by: "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
+    profiles: { personal: absent }
 
   - name: openvpn
     uris: "https://packages.openvpn.net/openvpn3/debian"
@@ -58,6 +59,7 @@ tools_apt_repos:
     components: [main]
     architectures: [amd64]
     signed_by: "https://packages.openvpn.net/packages-repo.gpg"
+    profiles: { personal: absent }
 
   - name: hashicorp
     uris: "https://apt.releases.hashicorp.com"
@@ -78,6 +80,7 @@ tools_apt_repos:
     components: [multiverse]
     architectures: [amd64]
     signed_by: "https://www.mongodb.org/static/pgp/server-{{ mongodb_version }}.asc"
+    profiles: { personal: absent }
 
   # One suite for every Debian derivative, so it does not follow the release.
   - name: github-cli
@@ -95,15 +98,15 @@ tools_apt_packages: # Keep in alphabetical order
   - { name: docker-buildx-plugin }
   - { name: docker-compose-plugin }
   - { name: gh }
-  - { name: google-cloud-cli }
-  - { name: google-cloud-sdk-gke-gcloud-auth-plugin }
+  - { name: google-cloud-cli, profiles: { personal: absent } }
+  - { name: google-cloud-sdk-gke-gcloud-auth-plugin , profiles: { personal: absent } }
   - { name: helm }
   - { name: kubectl }
-  - { name: mongodb-mongosh }
-  - { name: openvpn3 }
-  - { name: skopeo }
+  - { name: mongodb-mongosh, profiles: { personal: absent } }
+  - { name: openvpn3, profiles: { personal: absent } }
+  - { name: skopeo, profiles: { personal: absent } }
   - { name: terraform }
-  - { name: vault }
+  - { name: vault, profiles: { personal: absent } }
 
 tools_binaries:
   - name: switcher
@@ -113,14 +116,17 @@ tools_binaries:
   - name: sops
     url: "https://github.com/getsops/sops/releases/download/v{{ sops_version }}/sops-v{{ sops_version }}.linux.amd64"
     dest: /usr/local/bin/sops
+    profiles: { personal: absent }
 
   - name: yq
     url: "https://github.com/mikefarah/yq/releases/download/v{{ yq_version }}/yq_linux_amd64"
     dest: /usr/local/bin/yq
+    profiles: { personal: absent }
 
   - name: jb
     url: "https://github.com/jsonnet-bundler/jsonnet-bundler/releases/download/v{{ jb_version }}/jb-linux-amd64"
     dest: /usr/local/bin/jb
+    profiles: { personal: absent }
 
   - name: argocd
     url: "https://github.com/argoproj/argo-cd/releases/download/v{{ argocd_version }}/argocd-linux-amd64"
@@ -129,6 +135,7 @@ tools_binaries:
   - name: minikube
     url: "https://github.com/kubernetes/minikube/releases/latest/download/minikube-linux-amd64"
     dest: /usr/local/bin/minikube
+    profiles: { personal: absent, work: absent }
 
   - name: k3d
     url: "https://github.com/k3d-io/k3d/releases/download/v{{ k3d_version }}/k3d-linux-amd64"
@@ -144,6 +151,7 @@ tools_tarballs:
     url: "https://github.com/splunk/qbec/releases/download/v{{ qbec_version }}/qbec-linux-amd64.tar.gz"
     dest: /usr/local/bin/
     files: [qbec, jsonnet-qbec, CHANGELOG.md, LICENSE, README.md, licenselint.sh]
+    profiles: { personal: absent }
 
   - name: kubetlkt
     url: "https://github.com/evsor/kubetoolkit/releases/download/v{{ kubetlkt_version }}/kubetlkt-v{{ kubetlkt_version }}-linux-amd64.tar.gz"
@@ -154,6 +162,7 @@ tools_tarballs:
     url: "https://github.com/cert-manager/cmctl/releases/download/v{{ cmctl_version }}/cmctl_linux_amd64.tar.gz"
     dest: /usr/local/bin/
     files: [cmctl, LICENSE, README.md]
+    profiles: { personal: absent }
 
   - name: cilium
     url: "https://github.com/cilium/cilium-cli/releases/download/v{{ cilium_version }}/cilium-linux-amd64.tar.gz"
