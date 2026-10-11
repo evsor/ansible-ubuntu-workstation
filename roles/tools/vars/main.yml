@@ -16,6 +16,7 @@ cilium_version: 0.18.8
 kubeseal_version: 0.33.1
 glab_version: 1.119.0
 gws_version: 0.22.5
+microsandbox_version: 0.7.8
 
 # Software installation catalog. Entries are present on every profile unless
 # they say otherwise, see filter_plugins/catalog.py:
@@ -174,13 +175,16 @@ tools_tarballs:
     dest: /usr/local/bin/
     files: [kubeseal, LICENSE, README.md]
 
-  # Google Workspace CLI. The tarball is named for the Rust target triple, the
-  # binary it carries is `gws`.
   - name: gws
     url: "https://github.com/googleworkspace/cli/releases/download/v{{ gws_version }}/google-workspace-cli-x86_64-unknown-linux-gnu.tar.gz"
     dest: /usr/local/bin/
     files: [gws, CHANGELOG.md, LICENSE, README.md]
     profiles: { personal: absent }
+
+  - name: microsandbox
+    url: "https://github.com/superradcompany/microsandbox/releases/download/v{{ microsandbox_version }}/microsandbox-linux-x86_64.tar.gz"
+    dest: /usr/local/bin/
+    files: [msb, libkrunfw.so.5.6.1]
 
 tools_debs:
   - name: k9s
