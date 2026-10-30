@@ -104,7 +104,9 @@ tools_apt_packages: # Keep in alphabetical order
   - { name: helm }
   - { name: kubectl }
   - { name: mongodb-mongosh, profiles: { personal: absent } }
+  # openvpn3 is only a metapackage since v26; the client lives in openvpn3-client
   - { name: openvpn3, profiles: { personal: absent } }
+  - { name: openvpn3-client, profiles: { personal: absent } }
   - { name: skopeo, profiles: { personal: absent } }
   - { name: terraform }
   - { name: vault, profiles: { personal: absent } }
