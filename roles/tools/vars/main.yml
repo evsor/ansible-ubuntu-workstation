@@ -17,6 +17,7 @@ kubeseal_version: 0.33.1
 glab_version: 1.119.0
 gws_version: 0.22.5
 microsandbox_version: 0.7.8
+sbx_version: 0.2.0
 
 # Software installation catalog. Entries are present on every profile unless
 # they say otherwise, see filter_plugins/catalog.py:
@@ -143,6 +144,10 @@ tools_binaries:
   - name: k3d
     url: "https://github.com/k3d-io/k3d/releases/download/v{{ k3d_version }}/k3d-linux-amd64"
     dest: /usr/local/bin/k3d
+
+  - name: sbx
+    url: "https://github.com/evsor/agent-sandbox/releases/download/v{{ sbx_version }}/sbx"
+    dest: /usr/local/bin/sbx
 
 tools_tarballs:
   - name: fzf
