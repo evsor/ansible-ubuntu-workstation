@@ -17,7 +17,7 @@ kubeseal_version: 0.33.1
 glab_version: 1.119.0
 gws_version: 0.22.5
 microsandbox_version: 0.7.8
-sbx_version: 0.2.0
+sbx_version: 0.3.0
 dotenvx_version: 2.38.2
 
 # Software installation catalog. Entries are present on every profile unless
